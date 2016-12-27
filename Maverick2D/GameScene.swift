@@ -18,58 +18,68 @@ class GameScene: SKScene {
   
   var isTurningRight = false
   var isTurningLeft = false
+  var turningAbility: Double = 3
   
   let map: SKSpriteNode = {
-    let sprite = SKSpriteNode(imageNamed: "map")
-    sprite.name = "map"
-    sprite.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-    sprite.position = CGPoint(x: 0, y: 0)
-    sprite.size = CGSize(width: 4096, height: 4096)
-    sprite.physicsBody?.affectedByGravity = false
-    sprite.zPosition = 1
-    return sprite
+    let node = SKSpriteNode(imageNamed: "map")
+    node.name = "map"
+    node.anchorPoint = CGPoint(x: 0.5, y: 0.5)
+    node.position = CGPoint(x: 0, y: 0)
+    node.size = CGSize(width: 4096, height: 4096)
+    node.physicsBody?.affectedByGravity = false
+    node.zPosition = 1
+    return node
+  }()
+  
+  let analogStick: SKSpriteNode = {
+    let node = SKSpriteNode(color: UIColor(red: 0, green: 0, blue: 0, alpha: 0.5), size: CGSize(width: 256, height: 256))
+    node.name = "analogStick"
+    return node
   }()
   
   override func didMove(to view: SKView) {
     createTileMap()
     createPlane()
-    createMap()
   }
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
     for touch in touches {
-      if touch.location(in: self).x < 0 {
-        isTurningRight = false
-        isTurningLeft = true
-      }
-      if touch.location(in: self).x > 0 {
-        isTurningLeft = false
-        isTurningRight = true
-      }
+      createAnalogStickAt(location: touch.location(in: self))
     }
   }
   
   override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
     for touch in touches {
-      if touch.location(in: self).x < 0 {
+    print(touch.location(in: analogStick))
+      if touch.location(in: analogStick).x < 0 {
         isTurningRight = false
         isTurningLeft = true
+        if touch.location(in: analogStick).x < -100 {
+          turningAbility = 6
+        }
+        if touch.location(in: analogStick).x < -200 {
+          turningAbility = 9
+        }
       }
-      if touch.location(in: self).x > 0 {
+      if touch.location(in: analogStick).x > 0 {
         isTurningLeft = false
         isTurningRight = true
+        if touch.location(in: analogStick).x > 100 {
+          turningAbility = 6
+        }
+        if touch.location(in: analogStick).x > 200 {
+          turningAbility = 9
+        }
       }
     }
   }
   
   override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
     for touch in touches {
-      if touch.location(in: self).x < 0 {
-        isTurningLeft = false
-      }
-      if touch.location(in: self).x > 0 {
-        isTurningRight = false
-      }
+      turningAbility = 3
+      isTurningLeft = false
+      isTurningRight = false
+      removeAnalogStick()
     }
   }
   
@@ -78,15 +88,11 @@ class GameScene: SKScene {
       lastUpdatedTime = currentTime
     }
     
-    let delta = currentTime - lastUpdatedTime
-    print("Delta: \(delta)")
-    
     var accumulatedFrames = round((currentTime - lastUpdatedTime) * 60)
     
     lastUpdatedTime = currentTime
     
     while accumulatedFrames > 0 {
-      print("\(accumulatedFrames) accumulated")
       updateWorld()
       accumulatedFrames -= 1
     }
@@ -94,6 +100,17 @@ class GameScene: SKScene {
   
   func updateWorld() {
     movePlane()
+  }
+  
+  func createAnalogStickAt(location: CGPoint) {
+    analogStick.position = location
+    addChild(analogStick)
+  }
+  
+  func removeAnalogStick() {
+    enumerateChildNodes(withName: "analogStick") { node, error in
+      node.removeFromParent()
+    }
   }
   
   func createPlane() {
@@ -185,10 +202,6 @@ class GameScene: SKScene {
     self.addChild(tileMap)
   }
   
-  func createMap() {
-//    self.addChild(map)
-  }
-  
   func movePlane() {
     let dx = player.x + CGFloat(player.speed * sin(M_PI / 180 * player.angle))
     let dy = player.y - CGFloat(player.speed * cos(M_PI / 180 * player.angle))
@@ -202,9 +215,9 @@ class GameScene: SKScene {
     }
     
     if isTurningLeft {
-      player.angle += 3
+      player.angle += turningAbility
     } else if isTurningRight {
-      player.angle -= 3
+      player.angle -= turningAbility
     }
     
     tileMap.position.x = player.x

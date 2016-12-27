@@ -10,6 +10,7 @@ import SpriteKit
 
 class Plane: SKSpriteNode {
   var health = 10
+  var turningAbility = 3
   
   init(type: String) {
     let texture = SKTexture(imageNamed: type)
