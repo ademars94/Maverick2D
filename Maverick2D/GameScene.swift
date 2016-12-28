@@ -35,7 +35,22 @@ class GameScene: SKScene {
     createCamera()
     createPlane()
     createAnalogStick()
+    createSocketHandlers()
     socket.connect()
+  }
+  
+  func createSocketHandlers() {
+    socket.on("connect") { _ in
+      let client = ["name": "iOS", "plane": "0", "id": self.socket.sid!]
+      self.socket.emit("spawn", client)
+      print("Connected!")
+    }
+    socket.on("joinGame") { _ in
+      print("Joined!")
+    }
+    socket.on("updateAllPlayers") { data in
+      print(data)
+    }
   }
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -43,11 +58,6 @@ class GameScene: SKScene {
     projectile.position.x = player.x
     projectile.position.y = player.y
     self.addChild(projectile)
-    
-    let client = ["name": "iOS", "plane": "0", "id": socket.sid!]
-    print(JSONSerialization.isValidJSONObject(client))
-    
-    socket.emit("spawn", client)
   }
   
   override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
