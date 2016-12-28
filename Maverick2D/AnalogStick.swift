@@ -15,7 +15,7 @@ class AnalogStick: SKSpriteNode {
   
   let base: SKShapeNode = {
     let node = SKShapeNode(circleOfRadius: 128)
-    node.fillColor = UIColor(red: 70, green: 70, blue: 70, alpha: 1)
+    node.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
     node.strokeColor = .clear
     node.name = "base"
     return node
@@ -23,7 +23,7 @@ class AnalogStick: SKSpriteNode {
   
   let stick: SKShapeNode = {
     let node = SKShapeNode(circleOfRadius: 48)
-    node.fillColor = UIColor(red: 120, green: 120, blue: 120, alpha: 1)
+    node.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
     node.strokeColor = .clear
     node.name = "stick"
     return node
@@ -41,7 +41,7 @@ class AnalogStick: SKSpriteNode {
     fatalError("init(coder:) has not been implemented")
   }
   
-  func moveThumbTo(position: CGPoint) {
+  func moveStickTo(position: CGPoint) {
     if base.contains(position) {
       stick.position = position
     } else {
@@ -58,7 +58,7 @@ class AnalogStick: SKSpriteNode {
   
   override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
     for touch in touches {
-      moveThumbTo(position: touch.location(in: self))
+      moveStickTo(position: touch.location(in: self))
       if touch.location(in: self).x < 0 {
         isTurningRight = false
         isTurningLeft = true
@@ -70,7 +70,7 @@ class AnalogStick: SKSpriteNode {
   }
   
   override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-    moveThumbTo(position: CGPoint(x: 0, y: 0))
+    moveStickTo(position: CGPoint(x: 0, y: 0))
     isTurningLeft = false
     isTurningRight = false
   }
