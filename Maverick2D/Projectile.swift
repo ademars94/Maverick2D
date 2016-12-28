@@ -13,7 +13,7 @@ class Projectile: SKSpriteNode {
   var x: CGFloat = 0
   var y: CGFloat = 0
   var angle: Double = 0
-  var velocity: Double = 10
+  var velocity: Double = 30
   
   init(type: String, angle: Double, x: CGFloat, y: CGFloat) {
     let texture = SKTexture(imageNamed: type)
@@ -22,7 +22,7 @@ class Projectile: SKSpriteNode {
     self.anchorPoint = CGPoint(x: 0.5, y: 0.5)
     self.position = CGPoint(x: 0, y: 0)
     self.physicsBody?.affectedByGravity = false
-    self.zPosition = 10
+    self.zPosition = 9
     self.angle = angle
     self.x = x
     self.y = y

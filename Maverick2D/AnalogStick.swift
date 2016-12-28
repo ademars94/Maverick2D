@@ -12,26 +12,28 @@ class AnalogStick: SKSpriteNode {
   
   var isTurningRight = false
   var isTurningLeft = false
+  var radius = CGFloat()
   
-  let base: SKShapeNode = {
-    let node = SKShapeNode(circleOfRadius: 128)
-    node.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.3)
-    node.strokeColor = .clear
+  lazy var base: SKShapeNode = {
+    let node = SKShapeNode(circleOfRadius: self.radius)
+    node.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1)
+    node.lineWidth = 0
     node.name = "base"
     return node
   }()
   
-  let stick: SKShapeNode = {
-    let node = SKShapeNode(circleOfRadius: 48)
-    node.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 1)
-    node.strokeColor = .clear
+  lazy var stick: SKShapeNode = {
+    let node = SKShapeNode(circleOfRadius: self.radius / 2)
+    node.fillColor = UIColor(red:0.8, green:0, blue:0, alpha:1.0)
+    node.lineWidth = 0
     node.name = "stick"
     return node
   }()
   
-  init(position: CGPoint) {
-    super.init(texture: nil, color: .clear, size: CGSize(width: 128, height: 128))
+  init(position: CGPoint, radius: CGFloat) {
+    super.init(texture: nil, color: .clear, size: CGSize(width: radius, height: radius))
     self.position = position
+    self.radius = radius
     self.isUserInteractionEnabled = true
     self.addChild(base)
     self.addChild(stick)
@@ -49,8 +51,8 @@ class AnalogStick: SKSpriteNode {
       let dy = position.y - base.position.y
       let angle = atan2(dy, dx)
       
-      let x = (128 * cos(angle)) + base.position.x
-      let y = (128 * sin(angle)) + base.position.y
+      let x = (radius * cos(angle)) + base.position.x
+      let y = (radius * sin(angle)) + base.position.y
       
       stick.position = CGPoint(x: x, y: y)
     }

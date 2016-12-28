@@ -33,8 +33,9 @@ class GameScene: SKScene {
     return node
   }()
   
-  let analogStick: AnalogStick = {
-    let stick = AnalogStick(position: CGPoint(x: 0, y: -480))
+  lazy var analogStick: AnalogStick = {
+    let y = (self.size.height / -2) + 144
+    let stick = AnalogStick(position: CGPoint(x: 0, y: y), radius: 96)
     stick.name = "analogStick"
     return stick
   }()
@@ -47,11 +48,16 @@ class GameScene: SKScene {
   }
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-    
+    let projectile = Projectile(type: "bullet", angle: player.angle, x: player.x, y: player.y)
+    projectile.position.x = player.x
+    projectile.position.y = player.y
+    self.addChild(projectile)
   }
   
   override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-    
+    for touch in touches {
+      print(touch.force)
+    }
   }
   
   override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -75,6 +81,30 @@ class GameScene: SKScene {
   
   func updateWorld() {
     movePlane()
+    moveProjectiles()
+  }
+  
+  func moveProjectiles() {
+    enumerateChildNodes(withName: "projectile", using: { (node, error) in
+      if let projectile = node as? Projectile {
+        let dx = projectile.position.x - CGFloat(projectile.velocity * sin(M_PI / 180 * projectile.angle))
+        let dy = projectile.position.y + CGFloat(projectile.velocity * cos(M_PI / 180 * projectile.angle))
+        
+        if dx < 2048 && dx > -2048 {
+          projectile.position.x = dx
+        } else {
+          projectile.removeFromParent()
+        }
+        
+        if dy < 2048 && dy > -2048 {
+          projectile.position.y = dy
+        } else {
+          projectile.removeFromParent()
+        }
+        
+        projectile.zRotation = CGFloat(projectile.angle * M_PI / 180)
+      }
+    })
   }
   
   func movePlane() {
@@ -90,15 +120,15 @@ class GameScene: SKScene {
     }
     
     if analogStick.isTurningLeft {
-      player.angle += -0.025 * Double(analogStick.stick.position.x)
+      player.angle += -0.02 * Double(analogStick.stick.position.x)
     } else if analogStick.isTurningRight {
-      player.angle -= 0.025 * Double(analogStick.stick.position.x)
+      player.angle -= 0.02 * Double(analogStick.stick.position.x)
     }
     
     camera?.position.x = player.x
     camera?.position.y = player.y
     
-    player.plane.zRotation = CGFloat(player.angle * M_PI / 180)
+    camera?.zRotation = CGFloat(player.angle * M_PI / 180)
   }
   
   func createCamera() {
