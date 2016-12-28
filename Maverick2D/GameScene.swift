@@ -20,6 +20,8 @@ class GameScene: SKScene {
   var isTurningLeft = false
   var turningAbility: Double = 2
   
+  var projectiles = [Projectile]()
+  
   let map: SKSpriteNode = {
     let node = SKSpriteNode(imageNamed: "map")
     node.name = "map"
@@ -39,6 +41,7 @@ class GameScene: SKScene {
   
   override func didMove(to view: SKView) {
     createTileMap()
+    createCamera()
     createPlane()
     createAnalogStick()
   }
@@ -75,8 +78,8 @@ class GameScene: SKScene {
   }
   
   func movePlane() {
-    let dx = player.x + CGFloat(player.speed * sin(M_PI / 180 * player.angle))
-    let dy = player.y - CGFloat(player.speed * cos(M_PI / 180 * player.angle))
+    let dx = player.x - CGFloat(player.speed * sin(M_PI / 180 * player.angle))
+    let dy = player.y + CGFloat(player.speed * cos(M_PI / 180 * player.angle))
     
     if dx < 2048 && dx > -2048 {
       player.x = dx
@@ -92,19 +95,25 @@ class GameScene: SKScene {
       player.angle -= 0.025 * Double(analogStick.stick.position.x)
     }
     
-    tileMap.position.x = player.x
-    tileMap.position.y = player.y
+    camera?.position.x = player.x
+    camera?.position.y = player.y
     
     player.plane.zRotation = CGFloat(player.angle * M_PI / 180)
   }
   
+  func createCamera() {
+    let cam = SKCameraNode()
+    self.camera = cam
+    self.addChild(cam)
+  }
+  
   func createAnalogStick() {
-    addChild(analogStick)
+    self.camera?.addChild(analogStick)
   }
   
   func createPlane() {
     player.plane.position = CGPoint(x: 0, y: 0)
-    self.addChild(player.plane)
+    self.camera?.addChild(player.plane)
   }
   
   func createTileMap() {
