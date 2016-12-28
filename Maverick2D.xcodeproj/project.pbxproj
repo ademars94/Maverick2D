@@ -16,6 +16,7 @@
 		E54FB7D71E089B29006FAB9D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E54FB7D51E089B29006FAB9D /* LaunchScreen.storyboard */; };
 		E54FB7DF1E098FE0006FAB9D /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54FB7DE1E098FE0006FAB9D /* Player.swift */; };
 		E54FB7E11E0990A7006FAB9D /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54FB7E01E0990A7006FAB9D /* Plane.swift */; };
+		E5958EE41E133F9900C06FAF /* AnalogStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5958EE31E133F9900C06FAF /* AnalogStick.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		E54FB7D81E089B29006FAB9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E54FB7DE1E098FE0006FAB9D /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		E54FB7E01E0990A7006FAB9D /* Plane.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Plane.swift; sourceTree = "<group>"; };
+		E5958EE31E133F9900C06FAF /* AnalogStick.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalogStick.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 				E54FB7C81E089B29006FAB9D /* GameScene.sks */,
 				E54FB7C61E089B29006FAB9D /* AppDelegate.swift */,
 				E54FB7DE1E098FE0006FAB9D /* Player.swift */,
+				E5958EE31E133F9900C06FAF /* AnalogStick.swift */,
 				E54FB7E01E0990A7006FAB9D /* Plane.swift */,
 				E54FB7CC1E089B29006FAB9D /* GameScene.swift */,
 				E54FB7CE1E089B29006FAB9D /* GameViewController.swift */,
@@ -152,6 +155,7 @@
 			files = (
 				E54FB7DF1E098FE0006FAB9D /* Player.swift in Sources */,
 				E54FB7CD1E089B29006FAB9D /* GameScene.swift in Sources */,
+				E5958EE41E133F9900C06FAF /* AnalogStick.swift in Sources */,
 				E54FB7E11E0990A7006FAB9D /* Plane.swift in Sources */,
 				E54FB7CF1E089B29006FAB9D /* GameViewController.swift in Sources */,
 				E54FB7C71E089B29006FAB9D /* AppDelegate.swift in Sources */,
@@ -318,6 +322,7 @@
 				E54FB7DD1E089B29006FAB9D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
