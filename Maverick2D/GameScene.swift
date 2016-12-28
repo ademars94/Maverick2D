@@ -108,6 +108,12 @@ class GameScene: SKScene {
   }
   
   func movePlane() {
+    if analogStick.stick.position.y > 0 {
+      player.speed = 7 + 0.03 * Double(analogStick.stick.position.y)
+    } else {
+      player.speed = 7
+    }
+    
     let dx = player.x - CGFloat(player.speed * sin(M_PI / 180 * player.angle))
     let dy = player.y + CGFloat(player.speed * cos(M_PI / 180 * player.angle))
     
