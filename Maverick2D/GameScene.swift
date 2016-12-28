@@ -32,7 +32,7 @@ class GameScene: SKScene {
   }()
   
   let analogStick: AnalogStick = {
-    let stick = AnalogStick(position: CGPoint(x: 0, y: -512))
+    let stick = AnalogStick(position: CGPoint(x: 0, y: -480))
     stick.name = "analogStick"
     return stick
   }()
@@ -48,23 +48,11 @@ class GameScene: SKScene {
   }
   
   override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-    for touch in touches {
-      if touch.location(in: analogStick).x < 0 {
-        isTurningRight = false
-        isTurningLeft = true
-        turningAbility = -0.03 * Double(touch.location(in: analogStick).x)
-      } else if touch.location(in: analogStick).x > 0 {
-        isTurningLeft = false
-        isTurningRight = true
-        turningAbility = 0.03 * Double(touch.location(in: analogStick).x)
-      }
-    }
+    
   }
   
   override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-    turningAbility = 3
-    isTurningLeft = false
-    isTurningRight = false
+  
   }
   
   override func update(_ currentTime: TimeInterval) {
@@ -84,6 +72,30 @@ class GameScene: SKScene {
   
   func updateWorld() {
     movePlane()
+  }
+  
+  func movePlane() {
+    let dx = player.x + CGFloat(player.speed * sin(M_PI / 180 * player.angle))
+    let dy = player.y - CGFloat(player.speed * cos(M_PI / 180 * player.angle))
+    
+    if dx < 2048 && dx > -2048 {
+      player.x = dx
+    }
+    
+    if dy < 2048 && dy > -2048 {
+      player.y = dy
+    }
+    
+    if analogStick.isTurningLeft {
+      player.angle += -0.03 * Double(analogStick.stick.position.x)
+    } else if analogStick.isTurningRight {
+      player.angle -= 0.03 * Double(analogStick.stick.position.x)
+    }
+    
+    tileMap.position.x = player.x
+    tileMap.position.y = player.y
+    
+    player.plane.zRotation = CGFloat(player.angle * M_PI / 180)
   }
   
   func createAnalogStick() {
@@ -124,29 +136,5 @@ class GameScene: SKScene {
 //    }
     
     self.addChild(tileMap)
-  }
-  
-  func movePlane() {
-    let dx = player.x + CGFloat(player.speed * sin(M_PI / 180 * player.angle))
-    let dy = player.y - CGFloat(player.speed * cos(M_PI / 180 * player.angle))
-    
-    if dx < 2048 && dx > -2048 {
-      player.x = dx
-    }
-    
-    if dy < 2048 && dy > -2048 {
-      player.y = dy
-    }
-    
-    if isTurningLeft {
-      player.angle += turningAbility
-    } else if isTurningRight {
-      player.angle -= turningAbility
-    }
-    
-    tileMap.position.x = player.x
-    tileMap.position.y = player.y
-    
-    player.plane.zRotation = CGFloat(player.angle * M_PI / 180)
   }
 }

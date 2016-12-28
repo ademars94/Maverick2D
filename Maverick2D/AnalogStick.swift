@@ -10,6 +10,9 @@ import SpriteKit
 
 class AnalogStick: SKSpriteNode {
   
+  var isTurningRight = false
+  var isTurningLeft = false
+  
   let base: SKShapeNode = {
     let node = SKShapeNode(circleOfRadius: 128)
     node.fillColor = UIColor(red: 70, green: 70, blue: 70, alpha: 1)
@@ -19,7 +22,7 @@ class AnalogStick: SKSpriteNode {
   }()
   
   let stick: SKShapeNode = {
-    let node = SKShapeNode(circleOfRadius: 64)
+    let node = SKShapeNode(circleOfRadius: 48)
     node.fillColor = UIColor(red: 120, green: 120, blue: 120, alpha: 1)
     node.strokeColor = .clear
     node.name = "stick"
@@ -56,11 +59,20 @@ class AnalogStick: SKSpriteNode {
   override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
     for touch in touches {
       moveThumbTo(position: touch.location(in: self))
+      if touch.location(in: self).x < 0 {
+        isTurningRight = false
+        isTurningLeft = true
+      } else if touch.location(in: self).x > 0 {
+        isTurningLeft = false
+        isTurningRight = true
+      }
     }
   }
   
   override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
     moveThumbTo(position: CGPoint(x: 0, y: 0))
+    isTurningLeft = false
+    isTurningRight = false
   }
   
 }
