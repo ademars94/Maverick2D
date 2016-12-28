@@ -39,18 +39,18 @@ class AnalogStick: SKSpriteNode {
   }
   
   func moveThumbTo(position: CGPoint) {
-    let dx = position.x - base.position.x
-    let dy = position.y - base.position.y
-    
-    let vector = CGVector(dx: dx, dy: dy)
-    let angle = atan2(vector.dx, vector.dy)
-    let degrees = angle * CGFloat(180 / M_PI)
-
-    print(vector)
-    print(angle)
-    print(degrees + 180)
-    
-    stick.position = CGPoint(x: base.position.x + 128 * cos(angle), y: base.position.y + 128 * sin(angle))
+    if base.contains(position) {
+      stick.position = position
+    } else {
+      let dx = position.x - base.position.x
+      let dy = position.y - base.position.y
+      let angle = atan2(dy, dx)
+      
+      let x = (128 * cos(angle)) + base.position.x
+      let y = (128 * sin(angle)) + base.position.y
+      
+      stick.position = CGPoint(x: x, y: y)
+    }
   }
   
   override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
