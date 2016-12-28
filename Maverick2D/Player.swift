@@ -6,8 +6,7 @@
 //  Copyright © 2016 Alex DeMars. All rights reserved.
 //
 
-import Foundation
-import CoreGraphics
+import SpriteKit
 
 class Player {
   var x: CGFloat = 0
