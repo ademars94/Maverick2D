@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E548AD3F1E14323B00A45923 /* Projectile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E548AD3E1E14323B00A45923 /* Projectile.swift */; };
 		E54FB7C71E089B29006FAB9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54FB7C61E089B29006FAB9D /* AppDelegate.swift */; };
 		E54FB7C91E089B29006FAB9D /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = E54FB7C81E089B29006FAB9D /* GameScene.sks */; };
 		E54FB7CD1E089B29006FAB9D /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54FB7CC1E089B29006FAB9D /* GameScene.swift */; };
@@ -20,6 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E548AD3E1E14323B00A45923 /* Projectile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Projectile.swift; sourceTree = "<group>"; };
 		E54FB7C31E089B29006FAB9D /* Maverick2D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Maverick2D.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E54FB7C61E089B29006FAB9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E54FB7C81E089B29006FAB9D /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -69,6 +71,7 @@
 				E54FB7DE1E098FE0006FAB9D /* Player.swift */,
 				E5958EE31E133F9900C06FAF /* AnalogStick.swift */,
 				E54FB7E01E0990A7006FAB9D /* Plane.swift */,
+				E548AD3E1E14323B00A45923 /* Projectile.swift */,
 				E54FB7CC1E089B29006FAB9D /* GameScene.swift */,
 				E54FB7CE1E089B29006FAB9D /* GameViewController.swift */,
 				E54FB7D01E089B29006FAB9D /* Main.storyboard */,
@@ -157,6 +160,7 @@
 				E54FB7CD1E089B29006FAB9D /* GameScene.swift in Sources */,
 				E5958EE41E133F9900C06FAF /* AnalogStick.swift in Sources */,
 				E54FB7E11E0990A7006FAB9D /* Plane.swift in Sources */,
+				E548AD3F1E14323B00A45923 /* Projectile.swift in Sources */,
 				E54FB7CF1E089B29006FAB9D /* GameViewController.swift in Sources */,
 				E54FB7C71E089B29006FAB9D /* AppDelegate.swift in Sources */,
 			);
