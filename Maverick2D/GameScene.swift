@@ -8,6 +8,7 @@
 
 import SpriteKit
 import GameplayKit
+import SocketIO
 
 class GameScene: SKScene {
   
@@ -20,19 +21,6 @@ class GameScene: SKScene {
   var isTurningLeft = false
   var turningAbility: Double = 2
   
-  var projectiles = [Projectile]()
-  
-  let map: SKSpriteNode = {
-    let node = SKSpriteNode(imageNamed: "map")
-    node.name = "map"
-    node.anchorPoint = CGPoint(x: 0.5, y: 0.5)
-    node.position = CGPoint(x: 0, y: 0)
-    node.size = CGSize(width: 4096, height: 4096)
-    node.physicsBody?.affectedByGravity = false
-    node.zPosition = 1
-    return node
-  }()
-  
   lazy var analogStick: AnalogStick = {
     let y = (self.size.height / -2) + 144
     let stick = AnalogStick(position: CGPoint(x: 0, y: y), radius: 96)
@@ -40,11 +28,14 @@ class GameScene: SKScene {
     return stick
   }()
   
+  let socket = SocketIOClient(socketURL: URL(string: "http://172.24.32.15:3000")!, config: [])
+  
   override func didMove(to view: SKView) {
     createTileMap()
     createCamera()
     createPlane()
     createAnalogStick()
+    socket.connect()
   }
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -52,6 +43,11 @@ class GameScene: SKScene {
     projectile.position.x = player.x
     projectile.position.y = player.y
     self.addChild(projectile)
+    
+    let client = ["name": "iOS", "plane": "0", "id": socket.sid!]
+    print(JSONSerialization.isValidJSONObject(client))
+    
+    socket.emit("spawn", client)
   }
   
   override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
