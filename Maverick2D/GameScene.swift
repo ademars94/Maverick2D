@@ -87,9 +87,9 @@ class GameScene: SKScene {
     }
     
     if analogStick.isTurningLeft {
-      player.angle += -0.03 * Double(analogStick.stick.position.x)
+      player.angle += -0.025 * Double(analogStick.stick.position.x)
     } else if analogStick.isTurningRight {
-      player.angle -= 0.03 * Double(analogStick.stick.position.x)
+      player.angle -= 0.025 * Double(analogStick.stick.position.x)
     }
     
     tileMap.position.x = player.x
@@ -116,7 +116,6 @@ class GameScene: SKScene {
     var i = 34
     while i >= 0 {
       tileDefinitions.append(SKTileDefinition(texture: SKTexture(imageNamed: "land-tile-\(i)")))
-      print(tileDefinitions)
       i -= 1
     }
     
@@ -128,12 +127,12 @@ class GameScene: SKScene {
     tileMap = SKTileMapNode(tileSet: tileSet, columns: 8, rows: 8, tileSize: waterTile.size)
     tileMap.fill(with: waterTileGroup)
     
-//    let columns = [7, 6, 7, 6, 5, 4, 7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 1, 6, 5, 2, 1, 0, 6, 5, 4, 3, 1, 0, 4, 3, 2, 2, 2]
-//    let rows    = [0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 7]
+    let columns = [7, 6, 7, 6, 5, 4, 7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 1, 6, 5, 2, 1, 0, 6, 5, 4, 3, 1, 0, 4, 3, 2, 1, 2]
+    let rows    = [0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 7]
     
-//    for (index, tile) in tileDefinitions.enumerated() {
-//      tileMap.setTileGroup(landTileGroup, andTileDefinition: tile, forColumn: columns[index], row: rows[index])
-//    }
+    for (index, tile) in tileDefinitions.enumerated() {
+      tileMap.setTileGroup(landTileGroup, andTileDefinition: tile, forColumn: columns[index], row: rows[index])
+    }
     
     self.addChild(tileMap)
   }
