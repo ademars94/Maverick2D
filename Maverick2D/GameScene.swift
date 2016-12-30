@@ -14,7 +14,7 @@ class GameScene: SKScene {
   
   var tileMap = SKTileMapNode()
   
-  var player = Player(x: 0, y: 0, angle: 0, speed: 7, plane: Plane(type: "spitfire"))
+  var player = Player(name: "iOS", id: "", x: 0, y: 0, angle: 0, speed: 7, plane: Plane(type: "spitfire"))
   var lastUpdatedTime: TimeInterval = 0.0
   
   var isTurningRight = false
@@ -31,26 +31,13 @@ class GameScene: SKScene {
   let socket = SocketIOClient(socketURL: URL(string: "http://172.24.32.15:3000")!, config: [])
   
   override func didMove(to view: SKView) {
+    backgroundColor = UIColor(red:0.72, green:0.86, blue:1.0, alpha:1.0)
     createTileMap()
     createCamera()
     createPlane()
     createAnalogStick()
     createSocketHandlers()
     socket.connect()
-  }
-  
-  func createSocketHandlers() {
-    socket.on("connect") { _ in
-      let client = ["name": "iOS", "plane": "0", "id": self.socket.sid!]
-      self.socket.emit("spawn", client)
-      print("Connected!")
-    }
-    socket.on("joinGame") { _ in
-      print("Joined!")
-    }
-    socket.on("updateAllPlayers") { data in
-      print(data)
-    }
   }
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -90,6 +77,68 @@ class GameScene: SKScene {
     moveProjectiles()
   }
   
+  func createSocketHandlers() {
+    socket.on("connect") { _ in
+      self.player.id = self.socket.sid ?? ""
+      let client : [String: Any] = ["name": self.player.name, "id": self.player.id, "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed, "plane": "0"]
+      self.socket.emit("spawn", client)
+    }
+    
+    socket.on("updateGameState") { data in
+      if let players = data.0[0] as? [[String: Any]] {
+        for player in players {
+          if let id = player["id"] as? String {
+            if id == self.player.id {
+              self.checkPlayerPosition(player: player)
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  func checkPlayerPosition(player: [String: Any]) {
+    if let x = player["x"] as? CGFloat, let y = player["y"] as? CGFloat, let angle = player["angle"] as? Double {
+      self.player.x = x
+      self.player.y = y
+      self.player.angle = angle
+    }
+  }
+  
+  func movePlane() {
+    if analogStick.stick.position.y > 0 {
+      player.speed = 7 + 0.03 * Double(analogStick.stick.position.y)
+    } else {
+      player.speed = 7
+    }
+    
+    let dx = player.x - CGFloat(player.speed * sin(M_PI / 180 * player.angle))
+    let dy = player.y + CGFloat(player.speed * cos(M_PI / 180 * player.angle))
+    
+    if dx < 2048 && dx > -2048 {
+      player.x = dx
+    }
+    
+    if dy < 2048 && dy > -2048 {
+      player.y = dy
+    }
+    
+    if analogStick.isTurningLeft {
+      player.angle += -0.02 * Double(analogStick.stick.position.x)
+      let client: [String: Any] = ["id": self.player.id, "angle": self.player.angle]
+      socket.emit("changeAngle", client)
+    } else if analogStick.isTurningRight {
+      player.angle -= 0.02 * Double(analogStick.stick.position.x)
+      let client: [String: Any] = ["id": self.player.id, "angle": self.player.angle]
+      socket.emit("changeAngle", client)
+    }
+    
+    camera?.position.x = player.x
+    camera?.position.y = player.y
+    
+    camera?.zRotation = CGFloat(player.angle * M_PI / 180)
+  }
+  
   func moveProjectiles() {
     enumerateChildNodes(withName: "projectile", using: { (node, error) in
       if let projectile = node as? Projectile {
@@ -113,35 +162,17 @@ class GameScene: SKScene {
     })
   }
   
-  func movePlane() {
-    if analogStick.stick.position.y > 0 {
-      player.speed = 7 + 0.03 * Double(analogStick.stick.position.y)
-    } else {
-      player.speed = 7
-    }
-    
-    let dx = player.x - CGFloat(player.speed * sin(M_PI / 180 * player.angle))
-    let dy = player.y + CGFloat(player.speed * cos(M_PI / 180 * player.angle))
-    
-    if dx < 2048 && dx > -2048 {
-      player.x = dx
-    }
-    
-    if dy < 2048 && dy > -2048 {
-      player.y = dy
-    }
-    
-    if analogStick.isTurningLeft {
-      player.angle += -0.02 * Double(analogStick.stick.position.x)
-    } else if analogStick.isTurningRight {
-      player.angle -= 0.02 * Double(analogStick.stick.position.x)
-    }
-    
-    camera?.position.x = player.x
-    camera?.position.y = player.y
-    
-    camera?.zRotation = CGFloat(player.angle * M_PI / 180)
-  }
+//  func moveEnemy(id: String, x: CGFloat, y: CGFloat, angle: Double) {
+//    enumerateChildNodes(withName: "enemy") { enemyNode, error in
+//      if let enemy = enemyNode as? Enemy {
+//        if enemy.id == id {
+//          enemy.position.x = x
+//          enemy.position.y = y
+//          enemy.zRotation = CGFloat(angle * M_PI / 180)
+//        }
+//      }
+//    }
+//  }
   
   func createCamera() {
     let cam = SKCameraNode()
