@@ -28,7 +28,7 @@ class GameScene: SKScene {
     return stick
   }()
   
-  let socket = SocketIOClient(socketURL: URL(string: "http://172.24.32.15:3000")!, config: [])
+  let socket = SocketIOClient(socketURL: URL(string: "https://radiant-falls-54050.herokuapp.com")!, config: [])
   
   override func didMove(to view: SKView) {
     backgroundColor = UIColor(red:0.72, green:0.86, blue:1.0, alpha:1.0)
@@ -84,12 +84,18 @@ class GameScene: SKScene {
       self.socket.emit("spawn", client)
     }
     
+    socket.on("correction") { data in
+      if let player = data.0[0] as? [String: Any] {
+        self.correctPlayerPosition(player: player)
+      }
+    }
+    
     socket.on("updateGameState") { data in
       if let players = data.0[0] as? [[String: Any]] {
         for player in players {
           if let id = player["id"] as? String {
             if id == self.player.id {
-              self.checkPlayerPosition(player: player)
+//              self.correctPlayerPosition(player: player)
             }
           }
         }
@@ -97,39 +103,57 @@ class GameScene: SKScene {
     }
   }
   
-  func checkPlayerPosition(player: [String: Any]) {
+  func correctPlayerPosition(player: [String: Any]) {
     if let x = player["x"] as? CGFloat, let y = player["y"] as? CGFloat, let angle = player["angle"] as? Double {
-      self.player.x = x
-      self.player.y = y
-      self.player.angle = angle
+      let dx = self.player.x - x
+      let dy = self.player.y - y
+      let da = self.player.angle - angle
+      
+      print("------------ Begin -------------")
+      
+      if abs(dx) > 100 {
+        print("Delta X is \(dx). Correcting...")
+        self.player.x = x
+      }
+      
+      if abs(dy) > 100 {
+        print("Delta Y is \(dy). Correcting...")
+        self.player.y = y
+      }
+      
+      if abs(da) > 100 {
+        self.player.angle = angle
+      }
+      
+      print("------------- End --------------")
     }
   }
   
   func movePlane() {
-    if analogStick.stick.position.y > 0 {
-      player.speed = 7 + 0.03 * Double(analogStick.stick.position.y)
-    } else {
-      player.speed = 7
-    }
+//    if analogStick.stick.position.y > 0 {
+//      player.speed = 7 + 0.03 * Double(analogStick.stick.position.y)
+//    } else {
+//      player.speed = 7
+//    }
     
-    let dx = player.x - CGFloat(player.speed * sin(M_PI / 180 * player.angle))
-    let dy = player.y + CGFloat(player.speed * cos(M_PI / 180 * player.angle))
+    let dx = self.player.x - CGFloat(self.player.speed * sin(M_PI / 180 * self.player.angle))
+    let dy = self.player.y + CGFloat(self.player.speed * cos(M_PI / 180 * self.player.angle))
     
     if dx < 2048 && dx > -2048 {
-      player.x = dx
+      self.player.x = dx
     }
     
     if dy < 2048 && dy > -2048 {
-      player.y = dy
+      self.player.y = dy
     }
     
-    if analogStick.isTurningLeft {
-      player.angle += -0.02 * Double(analogStick.stick.position.x)
-      let client: [String: Any] = ["id": self.player.id, "angle": self.player.angle]
+    if self.analogStick.isTurningLeft {
+      self.player.angle += -0.02 * Double(analogStick.stick.position.x)
+      let client : [String: Any] = ["id": self.player.id, "angle": self.player.angle]
       socket.emit("changeAngle", client)
-    } else if analogStick.isTurningRight {
-      player.angle -= 0.02 * Double(analogStick.stick.position.x)
-      let client: [String: Any] = ["id": self.player.id, "angle": self.player.angle]
+    } else if self.analogStick.isTurningRight {
+      self.player.angle -= 0.02 * Double(analogStick.stick.position.x)
+      let client : [String: Any] = ["id": self.player.id, "angle": self.player.angle]
       socket.emit("changeAngle", client)
     }
     
@@ -137,6 +161,9 @@ class GameScene: SKScene {
     camera?.position.y = player.y
     
     camera?.zRotation = CGFloat(player.angle * M_PI / 180)
+    
+    let client : [String: Any] = ["name": self.player.name, "id": self.player.id, "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed]
+    self.socket.emit("planeMove", client)
   }
   
   func moveProjectiles() {
