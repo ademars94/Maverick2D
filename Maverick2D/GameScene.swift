@@ -9,8 +9,9 @@
 import SpriteKit
 import GameplayKit
 import SocketIO
+import CocoaAsyncSocket
 
-class GameScene: SKScene {
+class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
   
   var tileMap = SKTileMapNode()
   
@@ -28,16 +29,51 @@ class GameScene: SKScene {
     return stick
   }()
   
-  let socket = SocketIOClient(socketURL: URL(string: "https://radiant-falls-54050.herokuapp.com")!, config: [])
+//  let socket = SocketIOClient(socketURL: URL(string: "https://radiant-falls-54050.herokuapp.com")!, config: [])
+  var socket: GCDAsyncUdpSocket?
+  
   
   override func didMove(to view: SKView) {
     backgroundColor = UIColor(red:0.72, green:0.86, blue:1.0, alpha:1.0)
+    
     createTileMap()
     createCamera()
     createPlane()
     createAnalogStick()
     createSocketHandlers()
-    socket.connect()
+    createSocket()
+//    socket.connect()
+  }
+  
+  func createSocket() {
+    socket = GCDAsyncUdpSocket(delegate: self, delegateQueue: DispatchQueue.main)
+    
+    do {
+      try socket?.bind(toPort: 3000)
+    } catch let error {
+      print(error.localizedDescription)
+    }
+  
+  }
+  
+  func sendAction() {
+    guard let socket = self.socket else {
+      print("Could not unwrap socket.")
+      return
+    }
+    
+    let data = "Hello, World.".data(using: .utf8)
+    
+    socket.send(data!, toHost: "172.24.32.15", port: 3000, withTimeout: 10, tag: 1)
+    print(socket.isConnected())
+    
+    let dict: [String: Any] = ["String": "Hello, World.", "Integer": 420]
+    
+    if JSONSerialization.isValidJSONObject(dict) {
+      guard let json = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted) else {
+        return
+      }
+    }
   }
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -75,32 +111,35 @@ class GameScene: SKScene {
   func updateWorld() {
     movePlane()
     moveProjectiles()
+    sendAction()
   }
   
   func createSocketHandlers() {
-    socket.on("connect") { _ in
-      self.player.id = self.socket.sid ?? ""
-      let client : [String: Any] = ["name": self.player.name, "id": self.player.id, "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed, "plane": "0"]
-      self.socket.emit("spawn", client)
-    }
     
-    socket.on("correction") { data in
-      if let player = data.0[0] as? [String: Any] {
-        self.correctPlayerPosition(player: player)
-      }
-    }
     
-    socket.on("updateGameState") { data in
-      if let players = data.0[0] as? [[String: Any]] {
-        for player in players {
-          if let id = player["id"] as? String {
-            if id == self.player.id {
-//              self.correctPlayerPosition(player: player)
-            }
-          }
-        }
-      }
-    }
+//    socket.on("connect") { _ in
+//      self.player.id = self.socket.sid ?? ""
+//      let client : [String: Any] = ["name": self.player.name, "id": self.player.id, "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed, "plane": "0"]
+//      self.socket.emit("spawn", client)
+//    }
+//    
+//    socket.on("correction") { data in
+//      if let player = data.0[0] as? [String: Any] {
+//        self.correctPlayerPosition(player: player)
+//      }
+//    }
+//    
+//    socket.on("updateGameState") { data in
+//      if let players = data.0[0] as? [[String: Any]] {
+//        for player in players {
+//          if let id = player["id"] as? String {
+//            if id == self.player.id {
+////              self.correctPlayerPosition(player: player)
+//            }
+//          }
+//        }
+//      }
+//    }
   }
   
   func correctPlayerPosition(player: [String: Any]) {
@@ -150,11 +189,11 @@ class GameScene: SKScene {
     if self.analogStick.isTurningLeft {
       self.player.angle += -0.02 * Double(analogStick.stick.position.x)
       let client : [String: Any] = ["id": self.player.id, "angle": self.player.angle]
-      socket.emit("changeAngle", client)
+//      socket.emit("changeAngle", client)
     } else if self.analogStick.isTurningRight {
       self.player.angle -= 0.02 * Double(analogStick.stick.position.x)
       let client : [String: Any] = ["id": self.player.id, "angle": self.player.angle]
-      socket.emit("changeAngle", client)
+//      socket.emit("changeAngle", client)
     }
     
     camera?.position.x = player.x
@@ -163,7 +202,7 @@ class GameScene: SKScene {
     camera?.zRotation = CGFloat(player.angle * M_PI / 180)
     
     let client : [String: Any] = ["name": self.player.name, "id": self.player.id, "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed]
-    self.socket.emit("planeMove", client)
+//    self.socket.emit("planeMove", client)
   }
   
   func moveProjectiles() {
