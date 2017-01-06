@@ -8,7 +8,6 @@
 
 import SpriteKit
 import GameplayKit
-import SocketIO
 import CocoaAsyncSocket
 
 class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
@@ -21,6 +20,11 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
   var isTurningRight = false
   var isTurningLeft = false
   var turningAbility: Double = 2
+  var tag = 1
+  
+  var hostUrl = "172.24.32.15"
+  var hostPort: UInt16 = 3000
+  var socket: GCDAsyncUdpSocket?
   
   lazy var analogStick: AnalogStick = {
     let y = (self.size.height / -2) + 144
@@ -29,31 +33,24 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
     return stick
   }()
   
-//  let socket = SocketIOClient(socketURL: URL(string: "https://radiant-falls-54050.herokuapp.com")!, config: [])
-  var socket: GCDAsyncUdpSocket?
-  
-  
   override func didMove(to view: SKView) {
     backgroundColor = UIColor(red:0.72, green:0.86, blue:1.0, alpha:1.0)
-    
     createTileMap()
     createCamera()
     createPlane()
     createAnalogStick()
-    createSocketHandlers()
     createSocket()
-//    socket.connect()
+    createSocketHandlers()
   }
   
   func createSocket() {
-    socket = GCDAsyncUdpSocket(delegate: self, delegateQueue: DispatchQueue.main)
-    
-    do {
-      try socket?.bind(toPort: 3000)
-    } catch let error {
-      print(error.localizedDescription)
+    self.socket = GCDAsyncUdpSocket(delegate: self, delegateQueue: DispatchQueue.main)
+    guard let socket = self.socket else {
+      return
     }
-  
+    
+    try? socket.beginReceiving()
+    
   }
   
   func sendAction() {
@@ -62,18 +59,23 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
       return
     }
     
-    let data = "Hello, World.".data(using: .utf8)
-    
-    socket.send(data!, toHost: "172.24.32.15", port: 3000, withTimeout: 10, tag: 1)
-    print(socket.isConnected())
-    
-    let dict: [String: Any] = ["String": "Hello, World.", "Integer": 420]
+    let timestamp = Date().millisecondsSince1970()
+    let dict: [String: Any] = ["timestamp": timestamp]
     
     if JSONSerialization.isValidJSONObject(dict) {
-      guard let json = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted) else {
+      guard let data = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted) else {
         return
       }
+      
+      socket.send(data, toHost: hostUrl, port: hostPort, withTimeout: 10, tag: self.tag)
+      self.tag += 1
+    } else {
+      print("Could not create valid JSON object.")
     }
+  }
+  
+  func udpSocket(_ sock: GCDAsyncUdpSocket, didSendDataWithTag tag: Int) {
+    print("Sending message \(tag) to \(hostUrl) on port \(hostPort).")
   }
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -114,8 +116,11 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
     sendAction()
   }
   
+  func udpSocket(_ sock: GCDAsyncUdpSocket, didReceive data: Data, fromAddress address: Data, withFilterContext filterContext: Any?) {
+    print("Got the data!!!")
+  }
+  
   func createSocketHandlers() {
-    
     
 //    socket.on("connect") { _ in
 //      self.player.id = self.socket.sid ?? ""

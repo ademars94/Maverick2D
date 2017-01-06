@@ -9,7 +9,6 @@ target 'Maverick2D' do
   use_frameworks!
   
   # Pods for Maverick2D
-  pod 'Socket.IO-Client-Swift', '~> 8.2.0'
   pod 'CocoaAsyncSocket', '~> 7.5.1'
   
 end

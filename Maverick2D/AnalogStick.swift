@@ -16,7 +16,7 @@ class AnalogStick: SKSpriteNode {
   
   lazy var base: SKShapeNode = {
     let node = SKShapeNode(circleOfRadius: self.radius)
-    node.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1)
+    node.fillColor = .gray
     node.lineWidth = 0
     node.name = "base"
     return node
@@ -24,7 +24,7 @@ class AnalogStick: SKSpriteNode {
   
   lazy var stick: SKShapeNode = {
     let node = SKShapeNode(circleOfRadius: self.radius / 2)
-    node.fillColor = UIColor(red:0.8, green:0, blue:0, alpha:1.0)
+    node.fillColor = .groupTableViewBackground
     node.lineWidth = 0
     node.name = "stick"
     return node
@@ -81,6 +81,6 @@ class AnalogStick: SKSpriteNode {
 
 extension CGPoint {
   func distanceFromCGPoint(point:CGPoint)->CGFloat{
-    return sqrt(pow(self.x - point.x,2) + pow(self.y - point.y,2))
+    return sqrt(pow(self.x - point.x, 2) + pow(self.y - point.y ,2))
   }
 }
