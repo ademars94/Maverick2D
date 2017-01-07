@@ -45,12 +45,23 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
   
   func createSocket() {
     self.socket = GCDAsyncUdpSocket(delegate: self, delegateQueue: DispatchQueue.main)
+    
     guard let socket = self.socket else {
       return
     }
     
-    try? socket.beginReceiving()
+    do {
+      try socket.bind(toPort: socket.connectedPort())
+    } catch(let error) {
+      print(error.localizedDescription)
+      return
+    }
     
+    do {
+      try socket.beginReceiving()
+    } catch(let error) {
+      print(error.localizedDescription)
+    }
   }
   
   func sendAction() {
@@ -60,10 +71,10 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
     }
     
     let timestamp = Date().millisecondsSince1970()
-    let dict: [String: Any] = ["timestamp": timestamp]
+    let playerState: [String: Any] = ["timestamp": timestamp]
     
-    if JSONSerialization.isValidJSONObject(dict) {
-      guard let data = try? JSONSerialization.data(withJSONObject: dict, options: .prettyPrinted) else {
+    if JSONSerialization.isValidJSONObject(playerState) {
+      guard let data = try? JSONSerialization.data(withJSONObject: playerState, options: .prettyPrinted) else {
         return
       }
       
