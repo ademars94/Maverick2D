@@ -147,6 +147,7 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
     if self.analogStick.isTracking {
       let timestamp = Date().millisecondsSince1970()
       let playerState: [String: Any] = ["id": socket.localPort(), "type": "input", "timestamp": timestamp, "x": self.player.x, "y": self.player.y, "angle": self.player.angle]
+//      print(playerState)
       
       self.sendSocketMessage(playerState: playerState)
     }
@@ -154,6 +155,14 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
   
   func udpSocket(_ sock: GCDAsyncUdpSocket, didSendDataWithTag tag: Int) {
     print("Sending message \(tag) to \(hostUrl): \(hostPort).")
+  }
+  
+  func udpSocket(_ sock: GCDAsyncUdpSocket, didReceive data: Data, fromAddress address: Data, withFilterContext filterContext: Any?) {
+    print("Got the data!!!")
+    guard let json = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) else { return }
+    guard let serverPlayer = json as? [String: Any] else { return }
+    
+    self.correctPlayerPosition(player: serverPlayer)
   }
   
   func udpSocket(_ sock: GCDAsyncUdpSocket, didNotConnect error: Error?) {
@@ -225,33 +234,12 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
     sendAction()
   }
   
-  func udpSocket(_ sock: GCDAsyncUdpSocket, didReceive data: Data, fromAddress address: Data, withFilterContext filterContext: Any?) {
-    print("Got the data!!!")
-  }
-  
   func correctPlayerPosition(player: [String: Any]) {
     if let x = player["x"] as? CGFloat, let y = player["y"] as? CGFloat, let angle = player["angle"] as? Double {
-      let dx = self.player.x - x
-      let dy = self.player.y - y
-      let da = self.player.angle - angle
-      
-      print("------------ Begin -------------")
-      
-      if abs(dx) > 100 {
-        print("Delta X is \(dx). Correcting...")
-        self.player.x = x
-      }
-      
-      if abs(dy) > 100 {
-        print("Delta Y is \(dy). Correcting...")
-        self.player.y = y
-      }
-      
-      if abs(da) > 100 {
-        self.player.angle = angle
-      }
-      
-      print("------------- End --------------")
+      print("||------------- CORRECTION --------------||")
+      self.player.x = x
+      self.player.y = y
+      self.player.angle = angle
     }
   }
   
