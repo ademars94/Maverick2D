@@ -20,7 +20,6 @@
 		E54FB7E11E0990A7006FAB9D /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54FB7E01E0990A7006FAB9D /* Plane.swift */; };
 		E5958EE41E133F9900C06FAF /* AnalogStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5958EE31E133F9900C06FAF /* AnalogStick.swift */; };
 		E5ACF6BE1E2003200022CCD0 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5ACF6BD1E2003200022CCD0 /* Extensions.swift */; };
-		E5FF1FB31E16E328005613AB /* Enemy.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FF1FB21E16E328005613AB /* Enemy.swift */; };
 		FAB3BF3A1E22BD8E00A7B582 /* machine-gun.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */; };
 /* End PBXBuildFile section */
 
@@ -28,22 +27,21 @@
 		56186DF811F620E97AAFD1DB /* Pods_Maverick2D.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Maverick2D.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		57752C36CD6A03C731B002D0 /* Pods-Maverick2D.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Maverick2D.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Maverick2D/Pods-Maverick2D.debug.xcconfig"; sourceTree = "<group>"; };
 		889A23B03CDB7112B0FAA96D /* Pods-Maverick2D.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Maverick2D.release.xcconfig"; path = "Pods/Target Support Files/Pods-Maverick2D/Pods-Maverick2D.release.xcconfig"; sourceTree = "<group>"; };
-		E548AD3E1E14323B00A45923 /* Projectile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Projectile.swift; sourceTree = "<group>"; };
+		E548AD3E1E14323B00A45923 /* Projectile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Projectile.swift; path = "Sprite Nodes/Projectile.swift"; sourceTree = "<group>"; };
 		E54FB7C31E089B29006FAB9D /* Maverick2D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Maverick2D.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E54FB7C61E089B29006FAB9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		E54FB7C81E089B29006FAB9D /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
-		E54FB7CC1E089B29006FAB9D /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
-		E54FB7CE1E089B29006FAB9D /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
+		E54FB7C81E089B29006FAB9D /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; name = GameScene.sks; path = Views/GameScene.sks; sourceTree = "<group>"; };
+		E54FB7CC1E089B29006FAB9D /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GameScene.swift; path = Views/GameScene.swift; sourceTree = "<group>"; };
+		E54FB7CE1E089B29006FAB9D /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = GameViewController.swift; path = Controllers/GameViewController.swift; sourceTree = "<group>"; };
 		E54FB7D11E089B29006FAB9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		E54FB7D31E089B29006FAB9D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E54FB7D61E089B29006FAB9D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E54FB7D81E089B29006FAB9D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E54FB7DE1E098FE0006FAB9D /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
-		E54FB7E01E0990A7006FAB9D /* Plane.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Plane.swift; sourceTree = "<group>"; };
-		E5958EE31E133F9900C06FAF /* AnalogStick.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalogStick.swift; sourceTree = "<group>"; };
+		E54FB7DE1E098FE0006FAB9D /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Player.swift; path = "Sprite Nodes/Player.swift"; sourceTree = "<group>"; };
+		E54FB7E01E0990A7006FAB9D /* Plane.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Plane.swift; path = "Sprite Nodes/Plane.swift"; sourceTree = "<group>"; };
+		E5958EE31E133F9900C06FAF /* AnalogStick.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AnalogStick.swift; path = "Sprite Nodes/AnalogStick.swift"; sourceTree = "<group>"; };
 		E5ACF6BD1E2003200022CCD0 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		E5FF1FB21E16E328005613AB /* Enemy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Enemy.swift; sourceTree = "<group>"; };
-		FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "machine-gun.mp3"; sourceTree = "<group>"; };
+		FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = "machine-gun.mp3"; path = "Assets/machine-gun.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,23 +94,54 @@
 		E54FB7C51E089B29006FAB9D /* Maverick2D */ = {
 			isa = PBXGroup;
 			children = (
-				E54FB7C81E089B29006FAB9D /* GameScene.sks */,
+				E5E8C9881E2687BE00E3C31A /* Controllers */,
+				E5E8C9861E2686AB00E3C31A /* Sprite Nodes */,
+				E5E8C9851E26869E00E3C31A /* Views */,
+				E5E8C9891E2687F100E3C31A /* Assets */,
 				E54FB7C61E089B29006FAB9D /* AppDelegate.swift */,
-				E54FB7DE1E098FE0006FAB9D /* Player.swift */,
-				E5FF1FB21E16E328005613AB /* Enemy.swift */,
-				E5958EE31E133F9900C06FAF /* AnalogStick.swift */,
-				E54FB7E01E0990A7006FAB9D /* Plane.swift */,
-				E548AD3E1E14323B00A45923 /* Projectile.swift */,
-				E54FB7CC1E089B29006FAB9D /* GameScene.swift */,
-				E54FB7CE1E089B29006FAB9D /* GameViewController.swift */,
 				E5ACF6BD1E2003200022CCD0 /* Extensions.swift */,
-				E54FB7D01E089B29006FAB9D /* Main.storyboard */,
-				E54FB7D31E089B29006FAB9D /* Assets.xcassets */,
-				E54FB7D51E089B29006FAB9D /* LaunchScreen.storyboard */,
 				E54FB7D81E089B29006FAB9D /* Info.plist */,
-				FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */,
+				E54FB7D31E089B29006FAB9D /* Assets.xcassets */,
 			);
 			path = Maverick2D;
+			sourceTree = "<group>";
+		};
+		E5E8C9851E26869E00E3C31A /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				E54FB7CC1E089B29006FAB9D /* GameScene.swift */,
+				E54FB7C81E089B29006FAB9D /* GameScene.sks */,
+				E54FB7D01E089B29006FAB9D /* Main.storyboard */,
+				E54FB7D51E089B29006FAB9D /* LaunchScreen.storyboard */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		E5E8C9861E2686AB00E3C31A /* Sprite Nodes */ = {
+			isa = PBXGroup;
+			children = (
+				E5958EE31E133F9900C06FAF /* AnalogStick.swift */,
+				E54FB7DE1E098FE0006FAB9D /* Player.swift */,
+				E54FB7E01E0990A7006FAB9D /* Plane.swift */,
+				E548AD3E1E14323B00A45923 /* Projectile.swift */,
+			);
+			name = "Sprite Nodes";
+			sourceTree = "<group>";
+		};
+		E5E8C9881E2687BE00E3C31A /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				E54FB7CE1E089B29006FAB9D /* GameViewController.swift */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
+		E5E8C9891E2687F100E3C31A /* Assets */ = {
+			isa = PBXGroup;
+			children = (
+				FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */,
+			);
+			name = Assets;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -246,7 +275,6 @@
 				E54FB7CD1E089B29006FAB9D /* GameScene.swift in Sources */,
 				E5958EE41E133F9900C06FAF /* AnalogStick.swift in Sources */,
 				E54FB7E11E0990A7006FAB9D /* Plane.swift in Sources */,
-				E5FF1FB31E16E328005613AB /* Enemy.swift in Sources */,
 				E548AD3F1E14323B00A45923 /* Projectile.swift in Sources */,
 				E54FB7CF1E089B29006FAB9D /* GameViewController.swift in Sources */,
 				E54FB7C71E089B29006FAB9D /* AppDelegate.swift in Sources */,

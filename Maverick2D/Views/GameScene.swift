@@ -14,11 +14,13 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
   
   var tileMap = SKTileMapNode()
   
-  var player = Player(name: "iOS", id: "", x: 0, y: 0, angle: 0, speed: 7, plane: Plane(type: "spitfire"))
+  var player = Player(name: "iOS", id: 0, x: 0, y: 0, angle: 0, speed: 7, plane: Plane(type: "spitfire"))
   var lastUpdatedTime: TimeInterval = 0.0
 
   var turningAbility: Double = 2
   var tag = 1
+  
+  var enemies = [Player]()
   
   var hostUrl = "172.24.32.15"
   var hostPort: UInt16 = 1337
@@ -73,6 +75,19 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
     sendJoinRequest()
   }
   
+  func sendJoinRequest() {
+    guard let socket = self.socket else {
+      print("Could not unwrap socket.")
+      return
+    }
+    
+    self.player.id = socket.localPort()
+    
+    let playerState: [String: Any] = ["id": socket.localPort(), "type": "join", "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed]
+    print("sendJoinRequest: \(playerState)")
+    self.sendSocketMessage(playerState: playerState)
+  }
+  
   func sendSocketMessage(playerState: [String: Any]) {
     guard let socket = self.socket else {
       print("Could not unwrap socket.")
@@ -100,17 +115,6 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
     
     let playerState: [String: Any] = ["id": socket.localPort(), "type": "die"]
     print("killPlayer: \(playerState)")
-    self.sendSocketMessage(playerState: playerState)
-  }
-  
-  func sendJoinRequest() {
-    guard let socket = self.socket else {
-      print("Could not unwrap socket.")
-      return
-    }
-    
-    let playerState: [String: Any] = ["id": socket.localPort(), "type": "join", "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed]
-    print("sendJoinRequest: \(playerState)")
     self.sendSocketMessage(playerState: playerState)
   }
   
@@ -154,6 +158,7 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
     
     print("------------- SOCKET MESSAGE --------------")
     
+    // If data is a dictionary, else if data is an array of dictionaries
     if let serverData = json as? [String: Any] {
       if let type = serverData["type"] as? String {
         switch type {
@@ -257,23 +262,43 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
     }
     
     for player in players {
-      if let id = player["id"] as? UInt16, id != socket.localPort() {
-        let enemy = Enemy(enemyDictionary: player)
-        
-        guard let enemies = self.childNode(withName: "enemy") else {
-          print("*********************")
-          print("Adding enemy to game!")
-          print("*********************")
-          self.addChild(enemy)
-          return
+      
+      guard let id = player["id"] as? UInt16 else {
+        print("Couldn't unwrap ID.")
+        return
+      }
+      
+      guard let x = player["x"] as? CGFloat else {
+        print("Couldn't unwrap X.")
+        return
+      }
+      
+      guard let y = player["y"] as? CGFloat else {
+        print("Couldn't unwrap Y.")
+        return
+      }
+      
+      guard let angle = player["angle"] as? Double else {
+        print("Couldn't unwrap angle.")
+        return
+      }
+      
+      print(id)
+      print(x)
+      print(y)
+      print(angle)
+      
+      if id != socket.localPort() {
+        let enemy = Player(playerDictionary: player)
+        if self.enemies.contains(where: { e in e.id == enemy.id }) {
+          print("Enemy exists.")
+          let point = CGPoint(x: x, y: y)
+          moveEnemy(id, to: point, angle: angle)
+        } else {
+          print("Enemy does not exist.")
+          self.enemies.append(enemy)
+          self.addChild(enemy.plane)
         }
-        
-        
-        self.enumerateChildNodes(withName: "enemy", using: { (node, error) in
-          if let enemyNode = node as? Enemy {
-            self.moveEnemy(id: enemy.id, x: enemy.x, y: enemy.y, angle: enemy.angle)
-          }
-        })
       }
     }
   }
@@ -321,14 +346,15 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
     })
   }
   
-  func moveEnemy(id: Double, x: CGFloat, y: CGFloat, angle: Double) {
-    enumerateChildNodes(withName: "enemy") { enemyNode, error in
-      if let enemy = enemyNode as? Enemy {
-        if enemy.id == id {
-          enemy.position.x = x
-          enemy.position.y = y
-          enemy.zRotation = CGFloat(angle * M_PI / 180)
-        }
+  func moveEnemy(_ id: UInt16, to point: CGPoint, angle: Double) {
+    guard let socket = self.socket else {
+      print("Could not unwrap socket.")
+      return
+    }
+    
+    for enemy in enemies {
+      if enemy.id != socket.localPort() {
+        enemy.movePlane(to: point, angle: angle)
       }
     }
   }
