@@ -20,7 +20,7 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
   var turningAbility: Double = 2
   var tag = 1
   
-  var hostUrl = "192.168.0.4"
+  var hostUrl = "172.24.32.15"
   var hostPort: UInt16 = 1337
   var socket: GCDAsyncUdpSocket?
   
@@ -259,13 +259,19 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
     for player in players {
       if let id = player["id"] as? UInt16, id != socket.localPort() {
         let enemy = Enemy(enemyDictionary: player)
+        
+        guard let enemies = self.childNode(withName: "enemy") else {
+          print("*********************")
+          print("Adding enemy to game!")
+          print("*********************")
+          self.addChild(enemy)
+          return
+        }
+        
+        
         self.enumerateChildNodes(withName: "enemy", using: { (node, error) in
           if let enemyNode = node as? Enemy {
-            if enemyNode.id != enemy.id {
-              self.addChild(enemy)
-            } else {
-              self.moveEnemy(id: enemy.id, x: enemy.x, y: enemy.y, angle: enemy.angle)
-            }
+            self.moveEnemy(id: enemy.id, x: enemy.x, y: enemy.y, angle: enemy.angle)
           }
         })
       }
