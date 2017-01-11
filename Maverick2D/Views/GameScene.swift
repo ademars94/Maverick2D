@@ -201,16 +201,13 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
       print("speed : \(enemy.speed)")
       print("=================")
       
-      let dx = enemy.x - CGFloat(enemy.speed * sin(M_PI / 180 * enemy.angle))
-      let dy = enemy.y + CGFloat(enemy.speed * cos(M_PI / 180 * enemy.angle))
+      let dxTotal = enemy.nextX - enemy.lastUpdatedX
+      let dyTotal = enemy.nextY - enemy.lastUpdatedY
+      let daTotal = enemy.nextAngle - enemy.lastUpdatedAngle
       
-      if dx < 2048 && dx > -2048 {
-        enemy.x = dx
-      }
-      
-      if dy < 2048 && dy > -2048 {
-        enemy.y = dy
-      }
+      enemy.x = enemy.x + (1/3) * dxTotal
+      enemy.y = enemy.y + (1/3) * dyTotal
+      enemy.angle = enemy.angle + (1/3) * daTotal
       
       enemy.plane.position.x = enemy.x
       enemy.plane.position.y = enemy.y
@@ -221,7 +218,14 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
   func correctEnemy(_ id: UInt16, to point: CGPoint, angle: Double) {
     for enemy in enemies {
       if enemy.id != socketController.localPort {
-        enemy.movePlane(to: point, angle: angle)
+        enemy.lastUpdatedX = enemy.nextX
+        enemy.lastUpdatedY = enemy.nextY
+        enemy.lastUpdatedAngle = enemy.nextAngle
+        
+        enemy.nextX = point.x
+        enemy.nextY = point.y
+        enemy.nextAngle = angle
+//        enemy.movePlane(to: point, angle: angle)
       }
     }
   }

@@ -11,11 +11,22 @@ import SpriteKit
 class Player: NSObject {
   var name: String = ""
   var id: UInt16 = 0
+  var plane: Plane = Plane(type: "zero")
+  
   var x: CGFloat = 0
   var y: CGFloat = 0
   var angle: Double = 0
   var speed: Double = 0
-  var plane: Plane = Plane(type: "zero")
+  
+  var nextX: CGFloat = 0
+  var nextY: CGFloat = 0
+  var nextAngle: Double = 0
+  var nextSpeed: Double = 0
+  
+  var lastUpdatedX: CGFloat = 0
+  var lastUpdatedY: CGFloat = 0
+  var lastUpdatedAngle: Double = 0
+  var lastUpdatedSpeed: Double = 0
   
   override func setValue(_ value: Any?, forKey key: String) {
     if !self.responds(to: Selector(key)) {
