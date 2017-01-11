@@ -90,7 +90,7 @@ class SocketController: NSObject, GCDAsyncUdpSocketDelegate {
       return
     }
     
-    print("------------- SOCKET MESSAGE --------------")
+    print("------------- GOT SOCKET MESSAGE --------------")
     
     // If data is a dictionary, else if data is an array of dictionaries
     if let serverData = json as? [String: Any] {
@@ -108,6 +108,10 @@ class SocketController: NSObject, GCDAsyncUdpSocketDelegate {
     
   }
   
+  // ======================
+  // MARK: - Error Handling
+  // ======================
+  
   func udpSocket(_ sock: GCDAsyncUdpSocket, didNotConnect error: Error?) {
     guard let error = error else {
       return
@@ -115,10 +119,6 @@ class SocketController: NSObject, GCDAsyncUdpSocketDelegate {
     
     print("Socket failed to connect with error:")
     print(error.localizedDescription)
-  }
-  
-  func udpSocket(_ sock: GCDAsyncUdpSocket, didConnectToAddress address: Data) {
-    print("didConnectToAddress")
   }
   
   func udpSocketDidClose(_ sock: GCDAsyncUdpSocket, withError error: Error?) {

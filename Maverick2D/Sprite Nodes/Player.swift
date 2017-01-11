@@ -40,9 +40,9 @@ class Player: NSObject {
   }
   
   func movePlane(to point: CGPoint, angle: Double) {
-    self.x = point.x
-    self.y = point.y
-    self.plane.position = point
+//    self.x = point.x
+//    self.y = point.y
+//    self.plane.position = point
     self.angle = angle
     self.plane.zRotation = CGFloat(angle * M_PI / 180)
   }
