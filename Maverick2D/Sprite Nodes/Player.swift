@@ -10,7 +10,7 @@ import SpriteKit
 
 class Player: NSObject {
   var name: String = ""
-  var id: String = ""
+  var id: UInt16 = 0
   var x: CGFloat = 0
   var y: CGFloat = 0
   var angle: Double = 0
@@ -27,16 +27,9 @@ class Player: NSObject {
   init(playerDictionary: [String: Any]) {
     super.init()
     setValuesForKeys(playerDictionary)
-//    print("-------------------------")
-//    print("Name  : \(name)")
-//    print("Id    : \(id)")
-//    print("x     : \(x)")
-//    print("y     : \(y)")
-//    print("Angle : \(angle)")
-//    print("Speed : \(speed)")
   }
   
-  init(name:String, id: String, x: CGFloat, y: CGFloat, angle: Double, speed: Double, plane: Plane) {
+  init(name:String, id: UInt16, x: CGFloat, y: CGFloat, angle: Double, speed: Double, plane: Plane) {
     self.name = name
     self.id = id
     self.x = x
@@ -44,5 +37,13 @@ class Player: NSObject {
     self.angle = angle
     self.speed = speed
     self.plane = plane
+  }
+  
+  func movePlane(to point: CGPoint, angle: Double) {
+    self.x = point.x
+    self.y = point.y
+    self.plane.position = point
+    self.angle = angle
+    self.plane.zRotation = CGFloat(angle * M_PI / 180)
   }
 }
