@@ -20,6 +20,7 @@
 		E54FB7E11E0990A7006FAB9D /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54FB7E01E0990A7006FAB9D /* Plane.swift */; };
 		E5958EE41E133F9900C06FAF /* AnalogStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5958EE31E133F9900C06FAF /* AnalogStick.swift */; };
 		E5ACF6BE1E2003200022CCD0 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5ACF6BD1E2003200022CCD0 /* Extensions.swift */; };
+		E5E8C98B1E269F7900E3C31A /* SocketController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E8C98A1E269F7900E3C31A /* SocketController.swift */; };
 		FAB3BF3A1E22BD8E00A7B582 /* machine-gun.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */; };
 /* End PBXBuildFile section */
 
@@ -41,6 +42,7 @@
 		E54FB7E01E0990A7006FAB9D /* Plane.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Plane.swift; path = "Sprite Nodes/Plane.swift"; sourceTree = "<group>"; };
 		E5958EE31E133F9900C06FAF /* AnalogStick.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = AnalogStick.swift; path = "Sprite Nodes/AnalogStick.swift"; sourceTree = "<group>"; };
 		E5ACF6BD1E2003200022CCD0 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		E5E8C98A1E269F7900E3C31A /* SocketController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketController.swift; sourceTree = "<group>"; };
 		FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = "machine-gun.mp3"; path = "Assets/machine-gun.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -132,6 +134,7 @@
 			isa = PBXGroup;
 			children = (
 				E54FB7CE1E089B29006FAB9D /* GameViewController.swift */,
+				E5E8C98A1E269F7900E3C31A /* SocketController.swift */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -270,6 +273,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E5E8C98B1E269F7900E3C31A /* SocketController.swift in Sources */,
 				E54FB7DF1E098FE0006FAB9D /* Player.swift in Sources */,
 				E5ACF6BE1E2003200022CCD0 /* Extensions.swift in Sources */,
 				E54FB7CD1E089B29006FAB9D /* GameScene.swift in Sources */,

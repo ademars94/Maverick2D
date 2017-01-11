@@ -15,7 +15,7 @@ class Player: NSObject {
   var y: CGFloat = 0
   var angle: Double = 0
   var speed: Double = 0
-  var plane: Plane = Plane(type: "spitfire")
+  var plane: Plane = Plane(type: "zero")
   
   override func setValue(_ value: Any?, forKey key: String) {
     if !self.responds(to: Selector(key)) {

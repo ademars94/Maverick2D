@@ -10,21 +10,18 @@ import SpriteKit
 import GameplayKit
 import CocoaAsyncSocket
 
-class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
+class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
   
   var tileMap = SKTileMapNode()
   
-  var player = Player(name: "iOS", id: 0, x: 0, y: 0, angle: 0, speed: 7, plane: Plane(type: "spitfire"))
+  var player = Player(name: "iOS", id: 0, x: 0, y: 0, angle: 0, speed: 7, plane: Plane(type: "mustang"))
   var lastUpdatedTime: TimeInterval = 0.0
-
-  var turningAbility: Double = 2
-  var tag = 1
-  
   var enemies = [Player]()
   
-  var hostUrl = "172.24.32.15"
-  var hostPort: UInt16 = 1337
-  var socket: GCDAsyncUdpSocket?
+  lazy var socketController: SocketController = {
+    let controller = SocketController(delegate: self)
+    return controller
+  }()
   
   lazy var analogStick: AnalogStick = {
     let y = (self.size.height / -2) + 144
@@ -43,79 +40,28 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
     createCamera()
     createPlane()
     createAnalogStick()
-    createSocket()
+    setupSocket()
   }
   
-  func createSocket() {
-    print("Creating socket...")
-    self.socket = GCDAsyncUdpSocket(delegate: self, delegateQueue: DispatchQueue.main)
-    
-    guard let socket = self.socket else {
-      print("Could not create socket.")
-      return
+  func setupSocket() {
+    self.socketController.createSocket {
+      sendJoinRequest()
     }
-    
-    print("Socket binding...")
-    do {
-      try socket.bind(toPort: socket.connectedPort())
-      print("Socket bound.")
-    } catch(let error) {
-      print(error.localizedDescription)
-      return
-    }
-    
-    print("Socket trying to recieve...")
-    do {
-      try socket.beginReceiving()
-      print("Socket is recieving.")
-    } catch(let error) {
-      print(error.localizedDescription)
-    }
-    
-    sendJoinRequest()
   }
   
   func sendJoinRequest() {
-    guard let socket = self.socket else {
-      print("Could not unwrap socket.")
-      return
-    }
+    self.player.id = socketController.localPort
     
-    self.player.id = socket.localPort()
-    
-    let playerState: [String: Any] = ["id": socket.localPort(), "type": "join", "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed]
+    let playerState: [String: Any] = ["id": socketController.localPort, "type": "join", "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed]
     print("sendJoinRequest: \(playerState)")
-    self.sendSocketMessage(playerState: playerState)
-  }
-  
-  func sendSocketMessage(playerState: [String: Any]) {
-    guard let socket = self.socket else {
-      print("Could not unwrap socket.")
-      return
-    }
     
-    if JSONSerialization.isValidJSONObject(playerState) {
-      guard let data = try? JSONSerialization.data(withJSONObject: playerState, options: .prettyPrinted) else {
-        print("Exiting in guard. Could not create JSON object from playerState.")
-        return
-      }
-      
-      socket.send(data, toHost: hostUrl, port: hostPort, withTimeout: 10, tag: self.tag)
-      self.tag += 1
-    } else {
-      print("playerState is not a valid JSON object.")
-    }
+    socketController.sendSocketMessage(playerState: playerState)
   }
   
   func killPlayer() {
-    guard let socket = self.socket else {
-      print("Could not unwrap socket.")
-      return
-    }
-    
-    let playerState: [String: Any] = ["id": socket.localPort(), "type": "die"]
+    let playerState: [String: Any] = ["id": socketController.localPort, "type": "die"]
     print("killPlayer: \(playerState)")
-    self.sendSocketMessage(playerState: playerState)
+    socketController.sendSocketMessage(playerState: playerState)
   }
   
   func fire() {
@@ -123,86 +69,17 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
   }
   
   func endTracking() {
-    guard let socket = self.socket else {
-      print("Could not unwrap socket.")
-      return
-    }
-    
     let timestamp = Date().millisecondsSince1970()
-    let playerState: [String: Any] = ["id": socket.localPort(), "type": "input", "timestamp": timestamp, "turnDelta": self.analogStick.deltaX, "x": self.player.x, "y": self.player.y, "angle": self.player.angle]
-    self.sendSocketMessage(playerState: playerState)
+    let playerState: [String: Any] = ["id": socketController.localPort, "type": "input", "timestamp": timestamp, "turnDelta": self.analogStick.deltaX, "x": self.player.x, "y": self.player.y, "angle": self.player.angle]
+    socketController.sendSocketMessage(playerState: playerState)
   }
   
   func sendAction() {
-    guard let socket = self.socket else {
-      print("Could not unwrap socket.")
-      return
-    }
-
     if self.analogStick.isTracking {
       let timestamp = Date().millisecondsSince1970()
-      let playerState: [String: Any] = ["id": socket.localPort(), "type": "input", "timestamp": timestamp, "x": self.player.x, "y": self.player.y, "angle": self.player.angle]
-      self.sendSocketMessage(playerState: playerState)
+      let playerState: [String: Any] = ["id": socketController.localPort, "type": "input", "timestamp": timestamp, "x": self.player.x, "y": self.player.y, "angle": self.player.angle]
+      socketController.sendSocketMessage(playerState: playerState)
     }
-  }
-  
-  func udpSocket(_ sock: GCDAsyncUdpSocket, didSendDataWithTag tag: Int) {
-//    print("Sending message \(tag) to \(hostUrl): \(hostPort).")
-  }
-  
-  func udpSocket(_ sock: GCDAsyncUdpSocket, didReceive data: Data, fromAddress address: Data, withFilterContext filterContext: Any?) {
-    guard let json = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) else {
-      print("Got message but could not serialize JSON.")
-      return
-    }
-    
-    print("------------- SOCKET MESSAGE --------------")
-    
-    // If data is a dictionary, else if data is an array of dictionaries
-    if let serverData = json as? [String: Any] {
-      if let type = serverData["type"] as? String {
-        switch type {
-        case "correction": self.correctPlayerPosition(player: serverData)
-        default: return
-        }
-      }
-    } else if let serverData = json as? [[String: Any]] {
-      self.updatePlayerPositions(players: serverData)
-    } else {
-      print("ERROR: Could not evaluate data.")
-    }
-    
-  }
-  
-  func udpSocket(_ sock: GCDAsyncUdpSocket, didNotConnect error: Error?) {
-    guard let error = error else {
-      return
-    }
-    
-    print("Socket failed to connect with error:")
-    print(error.localizedDescription)
-  }
-  
-  func udpSocket(_ sock: GCDAsyncUdpSocket, didConnectToAddress address: Data) {
-    print("didConnectToAddress")
-  }
-  
-  func udpSocketDidClose(_ sock: GCDAsyncUdpSocket, withError error: Error?) {
-    guard let error = error else {
-      return
-    }
-    
-    print("Socket closed with error:")
-    print(error.localizedDescription)
-  }
-  
-  func udpSocket(_ sock: GCDAsyncUdpSocket, didNotSendDataWithTag tag: Int, dueToError error: Error?) {
-    guard let error = error else {
-      return
-    }
-    
-    print("Failed to send data with error:")
-    print(error.localizedDescription)
   }
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -256,39 +133,13 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
   }
   
   func updatePlayerPositions(players: [[String: Any]]) {
-    guard let socket = self.socket else {
-      print("Could not unwrap socket.")
-      return
-    }
-    
     for player in players {
-      
-      guard let id = player["id"] as? UInt16 else {
-        print("Couldn't unwrap ID.")
+      guard let id = player["id"] as? UInt16, let x = player["x"] as? CGFloat, let y = player["y"] as? CGFloat, let angle = player["angle"] as? Double else {
+        print("Couldn't unwrap player.")
         return
       }
       
-      guard let x = player["x"] as? CGFloat else {
-        print("Couldn't unwrap X.")
-        return
-      }
-      
-      guard let y = player["y"] as? CGFloat else {
-        print("Couldn't unwrap Y.")
-        return
-      }
-      
-      guard let angle = player["angle"] as? Double else {
-        print("Couldn't unwrap angle.")
-        return
-      }
-      
-      print(id)
-      print(x)
-      print(y)
-      print(angle)
-      
-      if id != socket.localPort() {
+      if id != socketController.localPort {
         let enemy = Player(playerDictionary: player)
         if self.enemies.contains(where: { e in e.id == enemy.id }) {
           print("Enemy exists.")
@@ -347,13 +198,8 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
   }
   
   func moveEnemy(_ id: UInt16, to point: CGPoint, angle: Double) {
-    guard let socket = self.socket else {
-      print("Could not unwrap socket.")
-      return
-    }
-    
     for enemy in enemies {
-      if enemy.id != socket.localPort() {
+      if enemy.id != socketController.localPort {
         enemy.movePlane(to: point, angle: angle)
       }
     }
