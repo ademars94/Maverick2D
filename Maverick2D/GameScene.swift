@@ -10,58 +10,123 @@ import SpriteKit
 import GameplayKit
 import CocoaAsyncSocket
 
-class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
+class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
   
   var tileMap = SKTileMapNode()
   
   var player = Player(name: "iOS", id: "", x: 0, y: 0, angle: 0, speed: 7, plane: Plane(type: "spitfire"))
   var lastUpdatedTime: TimeInterval = 0.0
-  
-  var isTurningRight = false
-  var isTurningLeft = false
+
   var turningAbility: Double = 2
   var tag = 1
   
-  var hostUrl = "172.24.32.15"
-  var hostPort: UInt16 = 3000
+  var hostUrl = "192.168.0.4"
+  var hostPort: UInt16 = 1337
   var socket: GCDAsyncUdpSocket?
   
   lazy var analogStick: AnalogStick = {
     let y = (self.size.height / -2) + 144
-    let stick = AnalogStick(position: CGPoint(x: 0, y: y), radius: 96)
+    let stick = AnalogStick(position: CGPoint(x: 0, y: y), radius: 64, delegate: self)
     stick.name = "analogStick"
     return stick
   }()
   
   override func didMove(to view: SKView) {
     backgroundColor = UIColor(red:0.72, green:0.86, blue:1.0, alpha:1.0)
+    
+    NotificationCenter.default.addObserver(self, selector: #selector(killPlayer), name: Notification.Name.UIApplicationWillResignActive, object: nil)
+    NotificationCenter.default.addObserver(self, selector: #selector(killPlayer), name: Notification.Name.UIApplicationWillTerminate, object: nil)
+    
     createTileMap()
     createCamera()
     createPlane()
     createAnalogStick()
     createSocket()
-    createSocketHandlers()
   }
   
   func createSocket() {
+    print("Creating socket...")
     self.socket = GCDAsyncUdpSocket(delegate: self, delegateQueue: DispatchQueue.main)
     
     guard let socket = self.socket else {
+      print("Could not create socket.")
       return
     }
     
+    print("Socket binding...")
     do {
       try socket.bind(toPort: socket.connectedPort())
+      print("Socket bound.")
     } catch(let error) {
       print(error.localizedDescription)
       return
     }
     
+    print("Socket trying to recieve...")
     do {
       try socket.beginReceiving()
+      print("Socket is recieving.")
     } catch(let error) {
       print(error.localizedDescription)
     }
+    
+    sendJoinRequest()
+  }
+  
+  func sendSocketMessage(playerState: [String: Any]) {
+    guard let socket = self.socket else {
+      print("Could not unwrap socket.")
+      return
+    }
+    
+    if JSONSerialization.isValidJSONObject(playerState) {
+      guard let data = try? JSONSerialization.data(withJSONObject: playerState, options: .prettyPrinted) else {
+        print("Exiting in guard. Could not create JSON object from playerState.")
+        return
+      }
+      
+      socket.send(data, toHost: hostUrl, port: hostPort, withTimeout: 10, tag: self.tag)
+      self.tag += 1
+    } else {
+      print("playerState is not a valid JSON object.")
+    }
+  }
+  
+  func killPlayer() {
+    guard let socket = self.socket else {
+      print("Could not unwrap socket.")
+      return
+    }
+    
+    let playerState: [String: Any] = ["id": socket.localPort(), "type": "die"]
+    print("killPlayer: \(playerState)")
+    self.sendSocketMessage(playerState: playerState)
+  }
+  
+  func sendJoinRequest() {
+    guard let socket = self.socket else {
+      print("Could not unwrap socket.")
+      return
+    }
+    
+    let playerState: [String: Any] = ["id": socket.localPort(), "type": "join", "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed]
+    print("sendJoinRequest: \(playerState)")
+    self.sendSocketMessage(playerState: playerState)
+  }
+  
+  func fire() {
+    print("Firing!!!")
+  }
+  
+  func endTracking() {
+    guard let socket = self.socket else {
+      print("Could not unwrap socket.")
+      return
+    }
+    
+    let timestamp = Date().millisecondsSince1970()
+    let playerState: [String: Any] = ["id": socket.localPort(), "type": "input", "timestamp": timestamp, "turnDelta": self.analogStick.deltaX, "x": self.player.x, "y": self.player.y, "angle": self.player.angle]
+    self.sendSocketMessage(playerState: playerState)
   }
   
   func sendAction() {
@@ -69,37 +134,83 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
       print("Could not unwrap socket.")
       return
     }
-    
-    let timestamp = Date().millisecondsSince1970()
-    let playerState: [String: Any] = ["timestamp": timestamp]
-    
-    if JSONSerialization.isValidJSONObject(playerState) {
-      guard let data = try? JSONSerialization.data(withJSONObject: playerState, options: .prettyPrinted) else {
-        return
-      }
-      
-      socket.send(data, toHost: hostUrl, port: hostPort, withTimeout: 10, tag: self.tag)
-      self.tag += 1
-    } else {
-      print("Could not create valid JSON object.")
+
+    if self.analogStick.isTracking {
+      let timestamp = Date().millisecondsSince1970()
+      let playerState: [String: Any] = ["id": socket.localPort(), "type": "input", "timestamp": timestamp, "x": self.player.x, "y": self.player.y, "angle": self.player.angle]
+      self.sendSocketMessage(playerState: playerState)
     }
   }
   
   func udpSocket(_ sock: GCDAsyncUdpSocket, didSendDataWithTag tag: Int) {
-    print("Sending message \(tag) to \(hostUrl) on port \(hostPort).")
+//    print("Sending message \(tag) to \(hostUrl): \(hostPort).")
+  }
+  
+  func udpSocket(_ sock: GCDAsyncUdpSocket, didReceive data: Data, fromAddress address: Data, withFilterContext filterContext: Any?) {
+    guard let json = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) else {
+      print("Got message but could not serialize JSON.")
+      return
+    }
+    
+    print("------------- SOCKET MESSAGE --------------")
+    
+    if let serverData = json as? [String: Any] {
+      if let type = serverData["type"] as? String {
+        switch type {
+        case "correction": self.correctPlayerPosition(player: serverData)
+        default: return
+        }
+      }
+    } else if let serverData = json as? [[String: Any]] {
+      self.updatePlayerPositions(players: serverData)
+    } else {
+      print("ERROR: Could not evaluate data.")
+    }
+    
+  }
+  
+  func udpSocket(_ sock: GCDAsyncUdpSocket, didNotConnect error: Error?) {
+    guard let error = error else {
+      return
+    }
+    
+    print("Socket failed to connect with error:")
+    print(error.localizedDescription)
+  }
+  
+  func udpSocket(_ sock: GCDAsyncUdpSocket, didConnectToAddress address: Data) {
+    print("didConnectToAddress")
+  }
+  
+  func udpSocketDidClose(_ sock: GCDAsyncUdpSocket, withError error: Error?) {
+    guard let error = error else {
+      return
+    }
+    
+    print("Socket closed with error:")
+    print(error.localizedDescription)
+  }
+  
+  func udpSocket(_ sock: GCDAsyncUdpSocket, didNotSendDataWithTag tag: Int, dueToError error: Error?) {
+    guard let error = error else {
+      return
+    }
+    
+    print("Failed to send data with error:")
+    print(error.localizedDescription)
   }
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
     let projectile = Projectile(type: "bullet", angle: player.angle, x: player.x, y: player.y)
     projectile.position.x = player.x
     projectile.position.y = player.y
+    let fireSound = SKAction.playSoundFileNamed("machine-gun.mp3", waitForCompletion: false)
+    self.run(fireSound)
     self.addChild(projectile)
   }
   
   override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-    for touch in touches {
-      print(touch.force)
-    }
+    
   }
   
   override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -127,70 +238,41 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
     sendAction()
   }
   
-  func udpSocket(_ sock: GCDAsyncUdpSocket, didReceive data: Data, fromAddress address: Data, withFilterContext filterContext: Any?) {
-    print("Got the data!!!")
-  }
-  
-  func createSocketHandlers() {
-    
-//    socket.on("connect") { _ in
-//      self.player.id = self.socket.sid ?? ""
-//      let client : [String: Any] = ["name": self.player.name, "id": self.player.id, "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed, "plane": "0"]
-//      self.socket.emit("spawn", client)
-//    }
-//    
-//    socket.on("correction") { data in
-//      if let player = data.0[0] as? [String: Any] {
-//        self.correctPlayerPosition(player: player)
-//      }
-//    }
-//    
-//    socket.on("updateGameState") { data in
-//      if let players = data.0[0] as? [[String: Any]] {
-//        for player in players {
-//          if let id = player["id"] as? String {
-//            if id == self.player.id {
-////              self.correctPlayerPosition(player: player)
-//            }
-//          }
-//        }
-//      }
-//    }
-  }
-  
   func correctPlayerPosition(player: [String: Any]) {
+    print("--- CORRECTION ---")
+    print(player)
     if let x = player["x"] as? CGFloat, let y = player["y"] as? CGFloat, let angle = player["angle"] as? Double {
-      let dx = self.player.x - x
-      let dy = self.player.y - y
-      let da = self.player.angle - angle
-      
-      print("------------ Begin -------------")
-      
-      if abs(dx) > 100 {
-        print("Delta X is \(dx). Correcting...")
-        self.player.x = x
+      self.player.x = x
+      self.player.y = y
+      self.player.angle = angle
+    } else {
+      print("Could not apply correction.")
+    }
+  }
+  
+  func updatePlayerPositions(players: [[String: Any]]) {
+    guard let socket = self.socket else {
+      print("Could not unwrap socket.")
+      return
+    }
+    
+    for player in players {
+      if let id = player["id"] as? UInt16, id != socket.localPort() {
+        let enemy = Enemy(enemyDictionary: player)
+        self.enumerateChildNodes(withName: "enemy", using: { (node, error) in
+          if let enemyNode = node as? Enemy {
+            if enemyNode.id != enemy.id {
+              self.addChild(enemy)
+            } else {
+              self.moveEnemy(id: enemy.id, x: enemy.x, y: enemy.y, angle: enemy.angle)
+            }
+          }
+        })
       }
-      
-      if abs(dy) > 100 {
-        print("Delta Y is \(dy). Correcting...")
-        self.player.y = y
-      }
-      
-      if abs(da) > 100 {
-        self.player.angle = angle
-      }
-      
-      print("------------- End --------------")
     }
   }
   
   func movePlane() {
-//    if analogStick.stick.position.y > 0 {
-//      player.speed = 7 + 0.03 * Double(analogStick.stick.position.y)
-//    } else {
-//      player.speed = 7
-//    }
-    
     let dx = self.player.x - CGFloat(self.player.speed * sin(M_PI / 180 * self.player.angle))
     let dy = self.player.y + CGFloat(self.player.speed * cos(M_PI / 180 * self.player.angle))
     
@@ -202,23 +284,12 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
       self.player.y = dy
     }
     
-    if self.analogStick.isTurningLeft {
-      self.player.angle += -0.02 * Double(analogStick.stick.position.x)
-      let client : [String: Any] = ["id": self.player.id, "angle": self.player.angle]
-//      socket.emit("changeAngle", client)
-    } else if self.analogStick.isTurningRight {
-      self.player.angle -= 0.02 * Double(analogStick.stick.position.x)
-      let client : [String: Any] = ["id": self.player.id, "angle": self.player.angle]
-//      socket.emit("changeAngle", client)
-    }
+    self.player.angle += analogStick.deltaX
     
     camera?.position.x = player.x
     camera?.position.y = player.y
     
     camera?.zRotation = CGFloat(player.angle * M_PI / 180)
-    
-    let client : [String: Any] = ["name": self.player.name, "id": self.player.id, "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed]
-//    self.socket.emit("planeMove", client)
   }
   
   func moveProjectiles() {
@@ -244,17 +315,17 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate {
     })
   }
   
-//  func moveEnemy(id: String, x: CGFloat, y: CGFloat, angle: Double) {
-//    enumerateChildNodes(withName: "enemy") { enemyNode, error in
-//      if let enemy = enemyNode as? Enemy {
-//        if enemy.id == id {
-//          enemy.position.x = x
-//          enemy.position.y = y
-//          enemy.zRotation = CGFloat(angle * M_PI / 180)
-//        }
-//      }
-//    }
-//  }
+  func moveEnemy(id: Double, x: CGFloat, y: CGFloat, angle: Double) {
+    enumerateChildNodes(withName: "enemy") { enemyNode, error in
+      if let enemy = enemyNode as? Enemy {
+        if enemy.id == id {
+          enemy.position.x = x
+          enemy.position.y = y
+          enemy.zRotation = CGFloat(angle * M_PI / 180)
+        }
+      }
+    }
+  }
   
   func createCamera() {
     let cam = SKCameraNode()

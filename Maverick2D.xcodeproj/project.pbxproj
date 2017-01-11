@@ -21,6 +21,7 @@
 		E5958EE41E133F9900C06FAF /* AnalogStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5958EE31E133F9900C06FAF /* AnalogStick.swift */; };
 		E5ACF6BE1E2003200022CCD0 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5ACF6BD1E2003200022CCD0 /* Extensions.swift */; };
 		E5FF1FB31E16E328005613AB /* Enemy.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FF1FB21E16E328005613AB /* Enemy.swift */; };
+		FAB3BF3A1E22BD8E00A7B582 /* machine-gun.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,7 @@
 		E5958EE31E133F9900C06FAF /* AnalogStick.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalogStick.swift; sourceTree = "<group>"; };
 		E5ACF6BD1E2003200022CCD0 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		E5FF1FB21E16E328005613AB /* Enemy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Enemy.swift; sourceTree = "<group>"; };
+		FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "machine-gun.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +110,7 @@
 				E54FB7D31E089B29006FAB9D /* Assets.xcassets */,
 				E54FB7D51E089B29006FAB9D /* LaunchScreen.storyboard */,
 				E54FB7D81E089B29006FAB9D /* Info.plist */,
+				FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */,
 			);
 			path = Maverick2D;
 			sourceTree = "<group>";
@@ -179,6 +182,7 @@
 				E54FB7C91E089B29006FAB9D /* GameScene.sks in Resources */,
 				E54FB7D41E089B29006FAB9D /* Assets.xcassets in Resources */,
 				E54FB7D71E089B29006FAB9D /* LaunchScreen.storyboard in Resources */,
+				FAB3BF3A1E22BD8E00A7B582 /* machine-gun.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

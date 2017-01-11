@@ -13,7 +13,7 @@ class Projectile: SKSpriteNode {
   var x: CGFloat = 0
   var y: CGFloat = 0
   var angle: Double = 0
-  var velocity: Double = 30
+  var velocity: Double = 45
   
   init(type: String, angle: Double, x: CGFloat, y: CGFloat) {
     let texture = SKTexture(imageNamed: type)
