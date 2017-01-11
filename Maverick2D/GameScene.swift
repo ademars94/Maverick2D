@@ -251,11 +251,25 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
   }
   
   func updatePlayerPositions(players: [[String: Any]]) {
-    print(players)
-  }
-  
-  func enemyJoined() {
+    guard let socket = self.socket else {
+      print("Could not unwrap socket.")
+      return
+    }
     
+    for player in players {
+      if let id = player["id"] as? UInt16, id != socket.localPort() {
+        let enemy = Enemy(enemyDictionary: player)
+        self.enumerateChildNodes(withName: "enemy", using: { (node, error) in
+          if let enemyNode = node as? Enemy {
+            if enemyNode.id != enemy.id {
+              self.addChild(enemy)
+            } else {
+              self.moveEnemy(id: enemy.id, x: enemy.x, y: enemy.y, angle: enemy.angle)
+            }
+          }
+        })
+      }
+    }
   }
   
   func movePlane() {
@@ -301,7 +315,7 @@ class GameScene: SKScene, GCDAsyncUdpSocketDelegate, AnalogStickDelegate {
     })
   }
   
-  func moveEnemy(id: String, x: CGFloat, y: CGFloat, angle: Double) {
+  func moveEnemy(id: Double, x: CGFloat, y: CGFloat, angle: Double) {
     enumerateChildNodes(withName: "enemy") { enemyNode, error in
       if let enemy = enemyNode as? Enemy {
         if enemy.id == id {

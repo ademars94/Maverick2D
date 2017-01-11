@@ -17,7 +17,7 @@
 import SpriteKit
 
 class Enemy: SKSpriteNode {
-  var id: String = ""
+  var id: Double = 0
   var x: CGFloat = 0
   var y: CGFloat = 0
   var angle: Double = 0
@@ -29,12 +29,12 @@ class Enemy: SKSpriteNode {
     }
     
     if key == "x" {
-//      print("Key is x")
+      print("Key is x")
       self.position.x = value as! CGFloat
     }
     
     if key == "y" {
-//      print("Key is y")
+      print("Key is y")
       self.position.y = value as! CGFloat
     }
     
@@ -43,6 +43,7 @@ class Enemy: SKSpriteNode {
   
   init(enemyDictionary: [String: Any]) {
     super.init(texture: SKTexture(imageNamed: "zero"), color: .clear, size: CGSize(width: 128, height: 128))
+    print("Initializing enemy...")
     setValuesForKeys(enemyDictionary)
     self.name = "enemy"
 //    print("-------------------------")
