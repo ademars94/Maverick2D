@@ -8,34 +8,52 @@
 
 import SpriteKit
 
+protocol AnalogStickDelegate {
+  func fire() -> Void
+  func endTracking() -> Void
+}
+
 class AnalogStick: SKSpriteNode {
-  
-  var isTurningRight = false
-  var isTurningLeft = false
+
+  var deltaX: Double = 0.0
+  var deltaY: Double = 0.0
+  var isTracking = false
   var radius = CGFloat()
+  var delegate: AnalogStickDelegate?
+  
+  lazy var sensor: SKShapeNode = {
+    let node = SKShapeNode(circleOfRadius: self.radius)
+    node.fillColor = .clear
+    node.lineWidth = 0
+    node.name = "sensor"
+    return node
+  }()
   
   lazy var base: SKShapeNode = {
-    let node = SKShapeNode(circleOfRadius: self.radius)
-    node.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.1)
+    let node = SKShapeNode(circleOfRadius: self.radius * 1.5)
+    node.fillColor = UIColor(red: 0.87, green: 0.87, blue: 0.87, alpha:1)
     node.lineWidth = 0
     node.name = "base"
     return node
   }()
   
   lazy var stick: SKShapeNode = {
-    let node = SKShapeNode(circleOfRadius: self.radius / 2)
-    node.fillColor = UIColor(red:0.8, green:0, blue:0, alpha:1.0)
-    node.lineWidth = 0
+    let node = SKShapeNode(circleOfRadius: self.radius * 0.8)
+    node.fillColor = UIColor(red: 0.92, green: 0.92, blue: 0.92, alpha:1)
+    node.strokeColor = UIColor(red: 0.82, green: 0.82, blue: 0.82, alpha:1)
+    node.lineWidth = 3
     node.name = "stick"
     return node
   }()
   
-  init(position: CGPoint, radius: CGFloat) {
+  init(position: CGPoint, radius: CGFloat, delegate: AnalogStickDelegate) {
     super.init(texture: nil, color: .clear, size: CGSize(width: radius, height: radius))
+    self.delegate = delegate
     self.position = position
     self.radius = radius
     self.isUserInteractionEnabled = true
     self.addChild(base)
+    self.addChild(sensor)
     self.addChild(stick)
   }
   
@@ -44,43 +62,60 @@ class AnalogStick: SKSpriteNode {
   }
   
   func moveStickTo(position: CGPoint) {
-    if base.contains(position) {
-      stick.position = position
+    if sensor.contains(position) {
+      self.stick.position = position
     } else {
-      let dx = position.x - base.position.x
-      let dy = position.y - base.position.y
+      let dx = position.x - sensor.position.x
+      let dy = position.y - sensor.position.y
       let angle = atan2(dy, dx)
       
-      let x = (radius * cos(angle)) + base.position.x
-      let y = (radius * sin(angle)) + base.position.y
+      let x = (radius * cos(angle)) + sensor.position.x
+      let y = (radius * sin(angle)) + sensor.position.y
       
-      stick.position = CGPoint(x: x, y: y)
+      self.stick.position = CGPoint(x: x, y: y)
     }
+  
+    setStickDelta()
+  }
+  
+  func roundValue(_ value: Double, toNearest: Double) -> Double {
+    return round(value / toNearest) * toNearest
+  }
+  
+  func setStickDelta() {
+    let turnX = Double(self.stick.position.x * -0.03)
+    let turnY = Double(self.stick.position.y * -0.03)
+    
+    self.deltaX = roundValue(turnX, toNearest: 0.001)
+    self.deltaY = roundValue(turnY, toNearest: 0.001)
+  }
+  
+  override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    self.isTracking = true
   }
   
   override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
     for touch in touches {
       moveStickTo(position: touch.location(in: self))
-      if touch.location(in: self).x < 0 {
-        isTurningRight = false
-        isTurningLeft = true
-      } else if touch.location(in: self).x > 0 {
-        isTurningLeft = false
-        isTurningRight = true
+      if touch.force > 5 {
+        self.delegate?.fire()
       }
     }
   }
   
   override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-    moveStickTo(position: CGPoint(x: 0, y: 0))
-    isTurningLeft = false
-    isTurningRight = false
+    let returnToCenter = SKAction.move(to: CGPoint(x: 0, y: 0), duration: 0.05)
+    stick.run(returnToCenter) { _ in
+      self.setStickDelta()
+      self.isTracking = false
+      self.delegate?.endTracking()
+    }
   }
   
 }
 
 extension CGPoint {
   func distanceFromCGPoint(point:CGPoint)->CGFloat{
-    return sqrt(pow(self.x - point.x,2) + pow(self.y - point.y,2))
+    return sqrt(pow(self.x - point.x, 2) + pow(self.y - point.y ,2))
   }
 }

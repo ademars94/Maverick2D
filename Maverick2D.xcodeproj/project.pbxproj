@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		275EC379CA1E219FB7621687 /* Pods_Maverick2D.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56186DF811F620E97AAFD1DB /* Pods_Maverick2D.framework */; };
 		E548AD3F1E14323B00A45923 /* Projectile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E548AD3E1E14323B00A45923 /* Projectile.swift */; };
 		E54FB7C71E089B29006FAB9D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54FB7C61E089B29006FAB9D /* AppDelegate.swift */; };
 		E54FB7C91E089B29006FAB9D /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = E54FB7C81E089B29006FAB9D /* GameScene.sks */; };
@@ -18,9 +19,15 @@
 		E54FB7DF1E098FE0006FAB9D /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54FB7DE1E098FE0006FAB9D /* Player.swift */; };
 		E54FB7E11E0990A7006FAB9D /* Plane.swift in Sources */ = {isa = PBXBuildFile; fileRef = E54FB7E01E0990A7006FAB9D /* Plane.swift */; };
 		E5958EE41E133F9900C06FAF /* AnalogStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5958EE31E133F9900C06FAF /* AnalogStick.swift */; };
+		E5ACF6BE1E2003200022CCD0 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5ACF6BD1E2003200022CCD0 /* Extensions.swift */; };
+		E5FF1FB31E16E328005613AB /* Enemy.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5FF1FB21E16E328005613AB /* Enemy.swift */; };
+		FAB3BF3A1E22BD8E00A7B582 /* machine-gun.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		56186DF811F620E97AAFD1DB /* Pods_Maverick2D.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Maverick2D.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		57752C36CD6A03C731B002D0 /* Pods-Maverick2D.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Maverick2D.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Maverick2D/Pods-Maverick2D.debug.xcconfig"; sourceTree = "<group>"; };
+		889A23B03CDB7112B0FAA96D /* Pods-Maverick2D.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Maverick2D.release.xcconfig"; path = "Pods/Target Support Files/Pods-Maverick2D/Pods-Maverick2D.release.xcconfig"; sourceTree = "<group>"; };
 		E548AD3E1E14323B00A45923 /* Projectile.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Projectile.swift; sourceTree = "<group>"; };
 		E54FB7C31E089B29006FAB9D /* Maverick2D.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Maverick2D.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E54FB7C61E089B29006FAB9D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -34,6 +41,9 @@
 		E54FB7DE1E098FE0006FAB9D /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		E54FB7E01E0990A7006FAB9D /* Plane.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Plane.swift; sourceTree = "<group>"; };
 		E5958EE31E133F9900C06FAF /* AnalogStick.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalogStick.swift; sourceTree = "<group>"; };
+		E5ACF6BD1E2003200022CCD0 /* Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		E5FF1FB21E16E328005613AB /* Enemy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Enemy.swift; sourceTree = "<group>"; };
+		FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "machine-gun.mp3"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,17 +51,37 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				275EC379CA1E219FB7621687 /* Pods_Maverick2D.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6AFC56C02EB40FED74445ABB /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				56186DF811F620E97AAFD1DB /* Pods_Maverick2D.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		89F97044FBC60F6FA439A56B /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				57752C36CD6A03C731B002D0 /* Pods-Maverick2D.debug.xcconfig */,
+				889A23B03CDB7112B0FAA96D /* Pods-Maverick2D.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
 		E54FB7BA1E089B29006FAB9D = {
 			isa = PBXGroup;
 			children = (
 				E54FB7C51E089B29006FAB9D /* Maverick2D */,
 				E54FB7C41E089B29006FAB9D /* Products */,
+				89F97044FBC60F6FA439A56B /* Pods */,
+				6AFC56C02EB40FED74445ABB /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -69,15 +99,18 @@
 				E54FB7C81E089B29006FAB9D /* GameScene.sks */,
 				E54FB7C61E089B29006FAB9D /* AppDelegate.swift */,
 				E54FB7DE1E098FE0006FAB9D /* Player.swift */,
+				E5FF1FB21E16E328005613AB /* Enemy.swift */,
 				E5958EE31E133F9900C06FAF /* AnalogStick.swift */,
 				E54FB7E01E0990A7006FAB9D /* Plane.swift */,
 				E548AD3E1E14323B00A45923 /* Projectile.swift */,
 				E54FB7CC1E089B29006FAB9D /* GameScene.swift */,
 				E54FB7CE1E089B29006FAB9D /* GameViewController.swift */,
+				E5ACF6BD1E2003200022CCD0 /* Extensions.swift */,
 				E54FB7D01E089B29006FAB9D /* Main.storyboard */,
 				E54FB7D31E089B29006FAB9D /* Assets.xcassets */,
 				E54FB7D51E089B29006FAB9D /* LaunchScreen.storyboard */,
 				E54FB7D81E089B29006FAB9D /* Info.plist */,
+				FAB3BF391E22BD8E00A7B582 /* machine-gun.mp3 */,
 			);
 			path = Maverick2D;
 			sourceTree = "<group>";
@@ -89,9 +122,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = E54FB7DB1E089B29006FAB9D /* Build configuration list for PBXNativeTarget "Maverick2D" */;
 			buildPhases = (
+				64C1CDDE5239144DD45C9252 /* [CP] Check Pods Manifest.lock */,
 				E54FB7BF1E089B29006FAB9D /* Sources */,
 				E54FB7C01E089B29006FAB9D /* Frameworks */,
 				E54FB7C11E089B29006FAB9D /* Resources */,
+				E318B0C815E7E78732671D97 /* [CP] Embed Pods Frameworks */,
+				6AFE918C82341E851C9C9E95 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -146,10 +182,59 @@
 				E54FB7C91E089B29006FAB9D /* GameScene.sks in Resources */,
 				E54FB7D41E089B29006FAB9D /* Assets.xcassets in Resources */,
 				E54FB7D71E089B29006FAB9D /* LaunchScreen.storyboard in Resources */,
+				FAB3BF3A1E22BD8E00A7B582 /* machine-gun.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		64C1CDDE5239144DD45C9252 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		6AFE918C82341E851C9C9E95 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Maverick2D/Pods-Maverick2D-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		E318B0C815E7E78732671D97 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Maverick2D/Pods-Maverick2D-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		E54FB7BF1E089B29006FAB9D /* Sources */ = {
@@ -157,9 +242,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				E54FB7DF1E098FE0006FAB9D /* Player.swift in Sources */,
+				E5ACF6BE1E2003200022CCD0 /* Extensions.swift in Sources */,
 				E54FB7CD1E089B29006FAB9D /* GameScene.swift in Sources */,
 				E5958EE41E133F9900C06FAF /* AnalogStick.swift in Sources */,
 				E54FB7E11E0990A7006FAB9D /* Plane.swift in Sources */,
+				E5FF1FB31E16E328005613AB /* Enemy.swift in Sources */,
 				E548AD3F1E14323B00A45923 /* Projectile.swift in Sources */,
 				E54FB7CF1E089B29006FAB9D /* GameViewController.swift in Sources */,
 				E54FB7C71E089B29006FAB9D /* AppDelegate.swift in Sources */,
@@ -283,6 +370,7 @@
 		};
 		E54FB7DC1E089B29006FAB9D /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 57752C36CD6A03C731B002D0 /* Pods-Maverick2D.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 6M346GUPZ3;
@@ -296,6 +384,7 @@
 		};
 		E54FB7DD1E089B29006FAB9D /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 889A23B03CDB7112B0FAA96D /* Pods-Maverick2D.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				DEVELOPMENT_TEAM = 6M346GUPZ3;
