@@ -138,8 +138,7 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
         let enemy = Player(playerDictionary: player)
         if self.enemies.contains(where: { e in e.id == enemy.id }) {
           print("An enemy is in the game.")
-          let point = CGPoint(x: x, y: y)
-          correctEnemy(id, to: point, angle: angle)
+          self.createNextPosition(for: id, atPoint: CGPoint(x: x, y: y), withAngle: angle)
         } else {
           print("Enemy does not exist.")
           self.enemies.append(enemy)
@@ -194,20 +193,8 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
   
   func moveEnemies() {
     for enemy in enemies {
-      print("===== ENEMY =====")
-      print("x     : \(enemy.x)")
-      print("y     : \(enemy.y)")
-      print("angle : \(enemy.angle)")
-      print("speed : \(enemy.speed)")
-      print("=================")
-      
-      let dxTotal = enemy.nextX - enemy.lastUpdatedX
-      let dyTotal = enemy.nextY - enemy.lastUpdatedY
-      let daTotal = enemy.nextAngle - enemy.lastUpdatedAngle
-      
-      enemy.x = enemy.x + (1/3) * dxTotal
-      enemy.y = enemy.y + (1/3) * dyTotal
-      enemy.angle = enemy.angle + (1/3) * daTotal
+      print("===== ENEMY \(enemy.id) =====")
+      enemy.executeStep()
       
       enemy.plane.position.x = enemy.x
       enemy.plane.position.y = enemy.y
@@ -215,17 +202,11 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
     }
   }
   
-  func correctEnemy(_ id: UInt16, to point: CGPoint, angle: Double) {
+  func createNextPosition(for id: UInt16, atPoint point: CGPoint, withAngle angle: Double) {
     for enemy in enemies {
       if enemy.id != socketController.localPort {
-        enemy.lastUpdatedX = enemy.nextX
-        enemy.lastUpdatedY = enemy.nextY
-        enemy.lastUpdatedAngle = enemy.nextAngle
-        
-        enemy.nextX = point.x
-        enemy.nextY = point.y
-        enemy.nextAngle = angle
-//        enemy.movePlane(to: point, angle: angle)
+        enemy.setLastKnownPosition()
+        enemy.processNextPositon(point: point, angle: angle)
       }
     }
   }
