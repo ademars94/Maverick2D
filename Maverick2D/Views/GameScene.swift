@@ -18,6 +18,8 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
   var lastUpdatedTime: TimeInterval = 0.0
   var enemies = [Player]()
   
+  let turnModifier = 1.7 // TODO: Turn modifier should be a property on Plane
+  
   lazy var socketController: SocketController = {
     let controller = SocketController(delegate: self)
     return controller
@@ -69,7 +71,7 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
     print("Firing!!!")
   }
   
-  func endTracking() {
+  func didEndTracking() {
     let timestamp = Date().millisecondsSince1970()
     let playerState: [String: Any] = ["id": socketController.localPort, "type": "input", "timestamp": timestamp, "turnDelta": self.analogStick.deltaX, "x": self.player.x, "y": self.player.y, "angle": self.player.angle]
     socketController.sendSocketMessage(playerState: playerState)
@@ -160,7 +162,7 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
       self.player.y = dy
     }
     
-    self.player.angle += analogStick.deltaX
+    self.player.angle -= analogStick.deltaX * self.turnModifier
     
     camera?.position.x = player.x
     camera?.position.y = player.y

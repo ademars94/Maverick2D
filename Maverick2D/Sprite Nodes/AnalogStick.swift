@@ -10,7 +10,7 @@ import SpriteKit
 
 protocol AnalogStickDelegate {
   func fire() -> Void
-  func endTracking() -> Void
+  func didEndTracking() -> Void
 }
 
 class AnalogStick: SKSpriteNode {
@@ -83,11 +83,13 @@ class AnalogStick: SKSpriteNode {
   }
   
   func setStickDelta() {
-    let turnX = Double(self.stick.position.x * -0.03)
-    let turnY = Double(self.stick.position.y * -0.03)
+    let percentX = Double(self.stick.position.x) / Double(self.radius)
+    let percentY = Double(self.stick.position.y) / Double(self.radius)
     
-    self.deltaX = roundValue(turnX, toNearest: 0.001)
-    self.deltaY = roundValue(turnY, toNearest: 0.001)
+    self.deltaX = roundValue(percentX, toNearest: 0.01)
+    self.deltaY = roundValue(percentY, toNearest: 0.01)
+    
+    print(self.deltaX)
   }
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -108,7 +110,7 @@ class AnalogStick: SKSpriteNode {
     stick.run(returnToCenter) { _ in
       self.setStickDelta()
       self.isTracking = false
-      self.delegate?.endTracking()
+      self.delegate?.didEndTracking()
     }
   }
   
