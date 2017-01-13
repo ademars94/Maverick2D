@@ -12,6 +12,7 @@ import CocoaAsyncSocket
 protocol SocketControllerDelegate {
   func correctPlayerPosition(player: [String: Any])
   func updatePlayerPositions(players: [[String: Any]])
+  func acknowledgeInput(input: [String: Any])
 }
 
 class SocketController: NSObject, GCDAsyncUdpSocketDelegate {
@@ -57,7 +58,7 @@ class SocketController: NSObject, GCDAsyncUdpSocketDelegate {
     completion()
   }
   
-  func sendSocketMessage(playerState: [String: Any]) {
+  func sendSocketMessageWith(playerState: [String: Any]) {
     guard let socket = self.socket else {
       print("Could not unwrap socket.")
       return
@@ -74,6 +75,28 @@ class SocketController: NSObject, GCDAsyncUdpSocketDelegate {
     } else {
       print("playerState is not a valid JSON object.")
     }
+  }
+  
+  func sendSocketMessageWith(inputQueue: [[String: Any]]) {
+    guard let socket = self.socket else {
+      print("Could not unwrap socket.")
+      return
+    }
+    
+    let unserialized: [String: Any] = ["id": socket.localPort(), "type": "input", "queue": inputQueue]
+    
+    if JSONSerialization.isValidJSONObject(unserialized) {
+      guard let data = try? JSONSerialization.data(withJSONObject: unserialized, options: .prettyPrinted) else {
+        print("Exiting in guard. Could not create JSON object from playerState.")
+        return
+      }
+      
+      socket.send(data, toHost: hostUrl, port: hostPort, withTimeout: 10, tag: self.tag)
+      self.tag += 1
+    } else {
+      print("inputQueue is not a valid JSON object.")
+    }
+    
   }
   
   // ========================
@@ -97,6 +120,7 @@ class SocketController: NSObject, GCDAsyncUdpSocketDelegate {
       if let type = serverData["type"] as? String {
         switch type {
         case "correction": self.delegate?.correctPlayerPosition(player: serverData)
+        case "ack": self.delegate?.acknowledgeInput(input: serverData)
         default: return
         }
       }

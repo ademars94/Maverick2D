@@ -16,7 +16,9 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
   
   var player = Player(name: "iOS", id: 0, x: 0, y: 0, angle: 0, speed: 7, plane: Plane(type: "mustang"))
   var lastUpdatedTime: TimeInterval = 0.0
+  var inputCount = 0
   var enemies = [Player]()
+  var inputQueue = [[String: Any]]()
   
   let turnModifier = 1.7 // TODO: Turn modifier should be a property on Plane
   
@@ -32,6 +34,10 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
     return stick
   }()
   
+  // ==================
+  // MARK: - Game Setup
+  // ==================
+  
   override func didMove(to view: SKView) {
     backgroundColor = UIColor(red:0.72, green:0.86, blue:1.0, alpha:1.0)
     
@@ -45,6 +51,55 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
     setupSocket()
   }
   
+  func createCamera() {
+    let cam = SKCameraNode()
+    self.camera = cam
+    self.addChild(cam)
+  }
+  
+  func createAnalogStick() {
+    self.camera?.addChild(analogStick)
+  }
+  
+  func createPlane() {
+    player.plane.position = CGPoint(x: 0, y: 0)
+    self.camera?.addChild(player.plane)
+  }
+  
+  func createTileMap() {
+    let waterTile = SKTileDefinition(texture: SKTexture(imageNamed: "map-tile-1"))
+    let waterTileGroup = SKTileGroup(tileDefinition: waterTile)
+    
+    var tileDefinitions = [SKTileDefinition]()
+    
+    var i = 34
+    while i >= 0 {
+      tileDefinitions.append(SKTileDefinition(texture: SKTexture(imageNamed: "land-tile-\(i)")))
+      i -= 1
+    }
+    
+    let landTileGroupRule = SKTileGroupRule(adjacency: .adjacencyAll, tileDefinitions: tileDefinitions)
+    let landTileGroup = SKTileGroup(rules: [landTileGroupRule])
+    
+    let tileSet = SKTileSet(tileGroups: [waterTileGroup, landTileGroup], tileSetType: .grid)
+    
+    tileMap = SKTileMapNode(tileSet: tileSet, columns: 8, rows: 8, tileSize: waterTile.size)
+    tileMap.fill(with: waterTileGroup)
+    
+    let columns = [7, 6, 7, 6, 5, 4, 7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 1, 6, 5, 2, 1, 0, 6, 5, 4, 3, 1, 0, 4, 3, 2, 1, 2]
+    let rows    = [0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 7]
+    
+    for (index, tile) in tileDefinitions.enumerated() {
+      tileMap.setTileGroup(landTileGroup, andTileDefinition: tile, forColumn: columns[index], row: rows[index])
+    }
+    
+    self.addChild(tileMap)
+  }
+  
+  // ====================
+  // MARK: - Socket Stuff
+  // ====================
+  
   func setupSocket() {
     self.socketController.createSocket { _ in
       self.sendJoinRequest()
@@ -57,14 +112,14 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
     let playerState: [String: Any] = ["id": self.player.id, "type": "join", "x": self.player.x, "y": self.player.y, "angle": self.player.angle, "speed": self.player.speed]
     
     print("Join Request: \(playerState)")
-    socketController.sendSocketMessage(playerState: playerState)
+    socketController.sendSocketMessageWith(playerState: playerState)
   }
   
   func killPlayer() {
     let playerState: [String: Any] = ["id": socketController.localPort, "type": "die"]
     
     print("Kill Player: \(playerState)")
-    socketController.sendSocketMessage(playerState: playerState)
+    socketController.sendSocketMessageWith(playerState: playerState)
   }
   
   func fire() {
@@ -72,18 +127,37 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
   }
   
   func didEndTracking() {
-    let timestamp = Date().millisecondsSince1970()
-    let playerState: [String: Any] = ["id": socketController.localPort, "type": "input", "timestamp": timestamp, "turnDelta": self.analogStick.deltaX, "x": self.player.x, "y": self.player.y, "angle": self.player.angle]
-    socketController.sendSocketMessage(playerState: playerState)
+    createInput()
   }
   
-  func sendAction() {
-    if self.analogStick.isTracking {
-      let timestamp = Date().millisecondsSince1970()
-      let playerState: [String: Any] = ["id": socketController.localPort, "type": "input", "timestamp": timestamp, "x": self.player.x, "y": self.player.y, "angle": self.player.angle]
-      socketController.sendSocketMessage(playerState: playerState)
+  func createInput() {
+    let input = Input(id: socketController.localPort, turnDelta: self.analogStick.deltaX, frameNumber: self.inputCount)
+    let json = input.toStringAny()
+    self.inputQueue.append(json)
+    socketController.sendSocketMessageWith(inputQueue: self.inputQueue)
+    
+    self.inputCount += 1
+  }
+  
+  func acknowledgeInput(input: [String : Any]) {
+    if let id = input["id"] as? Int {
+      print("Server acknowledged input \(id).")
+      deleteInput(id: id)
+      print(inputQueue)
+    } else {
+      print("Couldn't unwrap ID.")
     }
   }
+  
+  func deleteInput(id: Int) {
+    self.inputQueue = self.inputQueue.filter() {
+      $0["frameNumber"] as! Int != id
+    }
+  }
+  
+  // =======================
+  // MARK: - SpriteKit Stuff
+  // =======================
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
     let projectile = Projectile(type: "bullet", angle: player.angle, x: player.x, y: player.y)
@@ -113,8 +187,11 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
     movePlane()
     moveProjectiles()
     moveEnemies()
-    sendAction()
   }
+  
+  // ==================
+  // MARK: - Move Logic
+  // ==================
   
   func correctPlayerPosition(player: [String: Any]) {
     print("--- CORRECTION ---")
@@ -168,6 +245,12 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
     camera?.position.y = player.y
     
     camera?.zRotation = CGFloat(player.angle * M_PI / 180)
+    
+    print(player.angle)
+    
+    if self.analogStick.isTracking {
+      createInput()
+    }
   }
   
   func moveProjectiles() {
@@ -211,50 +294,5 @@ class GameScene: SKScene, SocketControllerDelegate, AnalogStickDelegate {
         enemy.processNextPositon(point: point, angle: angle)
       }
     }
-  }
-  
-  func createCamera() {
-    let cam = SKCameraNode()
-    self.camera = cam
-    self.addChild(cam)
-  }
-  
-  func createAnalogStick() {
-    self.camera?.addChild(analogStick)
-  }
-  
-  func createPlane() {
-    player.plane.position = CGPoint(x: 0, y: 0)
-    self.camera?.addChild(player.plane)
-  }
-  
-  func createTileMap() {
-    let waterTile = SKTileDefinition(texture: SKTexture(imageNamed: "map-tile-1"))
-    let waterTileGroup = SKTileGroup(tileDefinition: waterTile)
-    
-    var tileDefinitions = [SKTileDefinition]()
-    
-    var i = 34
-    while i >= 0 {
-      tileDefinitions.append(SKTileDefinition(texture: SKTexture(imageNamed: "land-tile-\(i)")))
-      i -= 1
-    }
-    
-    let landTileGroupRule = SKTileGroupRule(adjacency: .adjacencyAll, tileDefinitions: tileDefinitions)
-    let landTileGroup = SKTileGroup(rules: [landTileGroupRule])
-    
-    let tileSet = SKTileSet(tileGroups: [waterTileGroup, landTileGroup], tileSetType: .grid)
-    
-    tileMap = SKTileMapNode(tileSet: tileSet, columns: 8, rows: 8, tileSize: waterTile.size)
-    tileMap.fill(with: waterTileGroup)
-    
-    let columns = [7, 6, 7, 6, 5, 4, 7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2, 1, 6, 5, 2, 1, 0, 6, 5, 4, 3, 1, 0, 4, 3, 2, 1, 2]
-    let rows    = [0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 6, 6, 6, 6, 7]
-    
-    for (index, tile) in tileDefinitions.enumerated() {
-      tileMap.setTileGroup(landTileGroup, andTileDefinition: tile, forColumn: columns[index], row: rows[index])
-    }
-    
-    self.addChild(tileMap)
   }
 }

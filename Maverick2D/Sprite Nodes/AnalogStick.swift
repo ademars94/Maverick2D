@@ -88,8 +88,6 @@ class AnalogStick: SKSpriteNode {
     
     self.deltaX = roundValue(percentX, toNearest: 0.01)
     self.deltaY = roundValue(percentY, toNearest: 0.01)
-    
-    print(self.deltaX)
   }
   
   override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

@@ -91,9 +91,5 @@ class Player: NSObject {
     self.stepX = dx / 3
     self.stepY = dy / 3
     self.stepAngle = da / 3
-    
-//    print("total dx: \(self.dx))")
-//    print("total dy: \(self.dy))")
-//    print("total da: \(self.da))")
   }
 }
